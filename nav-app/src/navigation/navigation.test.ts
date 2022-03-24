@@ -2,22 +2,6 @@ import NavigationMap from "./NavigationMap";
 import { ENavigationDirection } from "./types";
 import utilNavigation from "./utilNavigation";
 
-/*
-const sampleVs_0_RowMap: INavigationRow = {
-  0: {
-    lastFocusedItemIndex: 0,
-    items: ["0_0-0-0", "0_0-0-1"],
-  },
-  1: {
-    lastFocusedItemIndex: 0,
-    items: ["0_0-1-0", "0_0-1-1"],
-  },
-  2: {
-    lastFocusedItemIndex: 0,
-    items: ["0_0-2-0", "0_0-2-1"],
-  },
-};
-*/
 const createNewDummVsData = (vsId: number[], noLanes: number) => {
   const dummy: any = {};
 
@@ -35,27 +19,78 @@ const createNewDummVsData = (vsId: number[], noLanes: number) => {
   return dummy;
 };
 
+const navObj = new NavigationMap(createNewDummVsData([0, 0], 2), [0, 0], 0);
+navObj.addNewVs(createNewDummVsData([1, 0], 2), [1, 0], 0);
+
+navObj.addNewVs(createNewDummVsData([0, 1], 2), [0, 1], 0);
+navObj.addNewVs(createNewDummVsData([0, -1], 2), [0, -1], 0);
+
 /*
-    Demonstrating the VS coordinates for our test
-
-    layer: 0
+    Demonstrating the LAYER and VS coordinates for our test
+    Above Navigation-map will be following JSON below
     {
-        [0, -1] -y
-        
-        [0, 0]      [1, 0] 
-
-        [0, 1] +y
+        Layer : "0": {
+            "lastFocusedVs": [0, 0],
+            "vss": {
+                "0_0": {
+                    "rows": {
+                        "0": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_0-0-0", "0-0_0-0-1"]
+                        },
+                        "1": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_0-1-0", "0-0_0-1-1"]
+                        }
+                    },
+                    "lastFocusedRowIndex": 0
+                },
+                "1_0": {
+                    "rows": {
+                        "0": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-1_0-0-0", "0-1_0-0-1"]
+                        },
+                        "1": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-1_0-1-0", "0-1_0-1-1"]
+                        }
+                    },
+                    "lastFocusedRowIndex": 0
+                },
+                "0_1": {
+                    "rows": {
+                        "0": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_1-0-0", "0-0_1-0-1"]
+                        },
+                        "1": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_1-1-0", "0-0_1-1-1"]
+                        }
+                    },
+                    "lastFocusedRowIndex": 0
+                },
+                "0_-1": {
+                    "rows": {
+                        "0": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_-1-0-0", "0-0_-1-0-1"]
+                        },
+                        "1": {
+                            "lastFocusedItemIndex": 0,
+                            "items": ["0-0_-1-1-0", "0-0_-1-1-1"]
+                        }
+                    },
+                    "lastFocusedRowIndex": 0
+                }
+            }
+        }
     }
 */
 
-const navObj = new NavigationMap(createNewDummVsData([0, 0], 2), [0, 0], 0);
-navObj.addNewVs(createNewDummVsData([1, 0], 3), [1, 0], 0);
-
-navObj.addNewVs(createNewDummVsData([0, 1], 3), [0, 1], 0);
-navObj.addNewVs(createNewDummVsData([0, -1], 3), [0, -1], 0); // vs
-
 describe("Testing Navigation", () => {
-  test("Navigation horizontal right", () => {
+  test("Navigation horizontal RIGHT", () => {
     const newState1 = navObj.navigate(ENavigationDirection.RIGHT);
 
     expect(newState1.vs).toEqual([0, 0]);
@@ -72,5 +107,69 @@ describe("Testing Navigation", () => {
     expect(newState3.vs).toEqual([1, 0]);
     expect(newState3.row).toEqual(0);
     expect(newState3.item).toEqual(1);
+  });
+
+  test("Navigation horizontal LEFT", () => {
+    const newState1 = navObj.navigate(ENavigationDirection.LEFT);
+
+    expect(newState1.vs).toEqual([1, 0]);
+    expect(newState1.row).toEqual(0);
+    expect(newState1.item).toEqual(0);
+
+    const newState2 = navObj.navigate(ENavigationDirection.LEFT);
+    expect(newState2.vs).toEqual([0, 0]);
+    expect(newState2.row).toEqual(0);
+    expect(newState2.item).toEqual(1);
+
+    navObj.navigate(ENavigationDirection.LEFT);
+    const newState3 = navObj.navigate(ENavigationDirection.LEFT);
+    expect(newState3.vs).toEqual([0, 0]);
+    expect(newState3.row).toEqual(0);
+    expect(newState3.item).toEqual(0);
+  });
+
+  test("Navigation vertical DOWN", () => {
+    const newState1 = navObj.navigate(ENavigationDirection.DOWN);
+
+    expect(newState1.vs).toEqual([0, 0]);
+    expect(newState1.row).toEqual(1);
+    expect(newState1.item).toEqual(0);
+
+    const newState2 = navObj.navigate(ENavigationDirection.DOWN);
+    expect(newState2.vs).toEqual([0, 1]);
+    expect(newState2.row).toEqual(0);
+    expect(newState2.item).toEqual(0);
+
+    const newState3 = navObj.navigate(ENavigationDirection.DOWN);
+    expect(newState3.vs).toEqual([0, 1]);
+    expect(newState3.row).toEqual(1);
+    expect(newState3.item).toEqual(0);
+  });
+
+  test("Navigation vertical UP", () => {
+    const newState1 = navObj.navigate(ENavigationDirection.UP);
+    expect(newState1.vs).toEqual([0, 1]);
+    expect(newState1.row).toEqual(0);
+    expect(newState1.item).toEqual(0);
+
+    const newState2 = navObj.navigate(ENavigationDirection.UP);
+    expect(newState2.vs).toEqual([0, 0]);
+    expect(newState2.row).toEqual(1);
+    expect(newState2.item).toEqual(0);
+
+    const newState3 = navObj.navigate(ENavigationDirection.UP);
+    expect(newState3.vs).toEqual([0, 0]);
+    expect(newState3.row).toEqual(0);
+    expect(newState3.item).toEqual(0);
+
+    const newState4 = navObj.navigate(ENavigationDirection.UP);
+    expect(newState4.vs).toEqual([0, -1]);
+    expect(newState4.row).toEqual(0);
+    expect(newState4.item).toEqual(0);
+
+    const newState5 = navObj.navigate(ENavigationDirection.UP);
+    expect(newState5.vs).toEqual([0, -1]);
+    expect(newState5.row).toEqual(0);
+    expect(newState5.item).toEqual(0);
   });
 });

@@ -23,10 +23,12 @@ const createNewDummVsData = (vsId: number[], noLanes: number) => {
 
 const App = () => {
   useEffect(() => {
-    const dummyVs = createNewDummVsData([0, 0], 2);
-    const navObj = new NavigationMap(dummyVs, [0, 0], 0);
-    const state1 = navObj.navigate(ENavigationDirection.UP);
-    console.log("MAAAL rendered", state1);
+    const navObj = new NavigationMap(createNewDummVsData([0, 0], 2), [0, 0], 0);
+    navObj.addNewVs(createNewDummVsData([1, 0], 2), [1, 0], 0);
+
+    navObj.addNewVs(createNewDummVsData([0, 1], 2), [0, 1], 0);
+    navObj.addNewVs(createNewDummVsData([0, -1], 2), [0, -1], 0);
+    console.log("MAAAL rendered", JSON.stringify(navObj.map));
   }, []);
 
   return <h1>Hello</h1>;
