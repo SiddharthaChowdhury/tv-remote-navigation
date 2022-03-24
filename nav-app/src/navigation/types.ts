@@ -1,4 +1,4 @@
-export interface INavigationMapActiveState {
+export interface INavigationMapMeta {
   layer: number;
   vs: number[];
   row: number;

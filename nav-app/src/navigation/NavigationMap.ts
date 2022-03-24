@@ -1,7 +1,7 @@
 import {
   ENavigationDirection,
   INavigationMap,
-  INavigationMapActiveState,
+  INavigationMapMeta,
   INavigationRow,
 } from "./types";
 import utilNavigation from "./utilNavigation";
@@ -19,10 +19,11 @@ import utilNavigation from "./utilNavigation";
         ],                                  ]
     }
 */
+export interface INavigationMapState extends INavigationMapMeta {}
 
 class NavigationMap {
   public map: INavigationMap = {};
-  public activeState: INavigationMapActiveState = {
+  public activeState: INavigationMapState = {
     layer: 0,
     vs: [0, 0],
     row: 0,
@@ -34,7 +35,7 @@ class NavigationMap {
   // ----------------------
 
   private checkToNavigateNextVs = (activeLayer: number, targetVs: number[]) => {
-    const targetVsStr = targetVs.join(",");
+    const targetVsStr = utilNavigation.vsNumberArrToStr(targetVs);
 
     if (!this.map[activeLayer].vss[targetVsStr]) return;
 
@@ -55,7 +56,7 @@ class NavigationMap {
   private navigateVertical = (direction: ENavigationDirection) => {
     const activeLayer = this.activeState.layer;
     const [activeVsX, activeVsY] = this.activeState.vs;
-    const activeVsStr = this.activeState.vs.join(",");
+    const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
     const activeRow = this.activeState.row;
 
     let targetRow = activeRow + 1;
@@ -88,7 +89,7 @@ class NavigationMap {
   private navigateHorizntal(direction: ENavigationDirection) {
     const activeLayer = this.activeState.layer;
     const [activeVsX, activeVsY] = this.activeState.vs;
-    const activeVsStr = this.activeState.vs.join(",");
+    const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
     const activeRow = this.activeState.row;
     const activeItem = this.activeState.item;
 
@@ -126,14 +127,14 @@ class NavigationMap {
   //     CONSTRUCTOR
   // ----------------------
   constructor(rowDataObj: INavigationRow, vsId: number[], layerId: number) {
-    this.setNewVs(rowDataObj, vsId, layerId);
+    this.addNewVs(rowDataObj, vsId, layerId);
   }
 
   // ----------------------
   //     PUBLIC FNs
   // ----------------------
 
-  public setNewVs = (
+  public addNewVs = (
     rowsDataObj: INavigationRow,
     vsXYId: number[], // like ["-1,0"] ,["0,0"], ["0,1"],
     layerId: number
@@ -145,7 +146,7 @@ class NavigationMap {
       };
     }
 
-    const vsXYIdStr = vsXYId.join(",");
+    const vsXYIdStr = utilNavigation.vsNumberArrToStr(vsXYId);
 
     if (this.map[layerId] && !this.map[layerId].vss[vsXYIdStr]) {
       this.map[layerId].vss[vsXYIdStr] = {
@@ -167,7 +168,7 @@ class NavigationMap {
       return;
     }
 
-    const vsIdArr = utilNavigation.vsStringToNumberArr(vsIndex);
+    const vsIdArr = utilNavigation.vsStrToNumberArr(vsIndex);
 
     this.activeState.layer = layerId;
     this.activeState.vs = vsIdArr;
@@ -180,9 +181,7 @@ class NavigationMap {
       itemIndex;
   };
 
-  public navigate = (
-    direction: ENavigationDirection
-  ): INavigationMapActiveState => {
+  public navigate = (direction: ENavigationDirection): INavigationMapMeta => {
     if (
       direction === ENavigationDirection.UP ||
       direction === ENavigationDirection.DOWN
