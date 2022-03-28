@@ -11,15 +11,12 @@ const utilNavigation = {
     return `${x}_${y}`;
   },
 
-  generateItemId: (
-    layerId: number,
-    vsId: number[],
-    rowId: number,
-    itemId: number
-  ) => {
-    return `${layerId}-${utilNavigation.vsNumberArrToStr(
-      vsId
-    )}-${rowId}-${itemId}`;
+  generateLaneId: (layer: number, vs: number[], row: number) => {
+    return `${layer}-${utilNavigation.vsNumberArrToStr(vs)}-${row}`;
+  },
+
+  generateItemId: (layer: number, vs: number[], row: number, item: number) => {
+    return `${utilNavigation.generateLaneId(layer, vs, row)}-${item}`;
   },
 
   itemIdToMapMeta: (itemIdStr: string): INavigationMapMeta => {
@@ -30,7 +27,7 @@ const utilNavigation = {
       layer: parseInt(layerId),
       vs: vsId,
       row: parseInt(rowId),
-      item: parseInt(rowId),
+      item: parseInt(itemId),
     };
   },
 };
