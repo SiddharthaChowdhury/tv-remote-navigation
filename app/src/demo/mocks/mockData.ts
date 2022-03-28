@@ -16,9 +16,9 @@ export const __mock__pageData: IMockData[] = [
     label: "CTA",
     type: "cta",
     data: [
-      { type: "cta-text", label: "Text 1 Non-focusable item" },
-      { type: "cta-text", label: "Text 2 Non-focusable item" },
-      { type: "cta-text", label: "Text 3 Non-focusable item" },
+      { type: "cta-text", label: "Text 1 item" },
+      { type: "cta-text", label: "Text 2 item" },
+      { type: "cta-text", label: "Text 3 item" },
     ],
   },
 
