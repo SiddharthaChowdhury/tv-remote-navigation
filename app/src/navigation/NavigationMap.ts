@@ -10,7 +10,7 @@ import utilNavigation from "./utilNavigation";
 
     { layer:0
 
-        vs:0,0 {Sidenav}                      vs:0,1 {body} 
+        vs:0,0 {Sidenav}                      vs:1,0 {body} 
         [                                   [
             row:0 [ 0, 1, 2, 3, 4, 5]           row:0 [ 0, 1, 2, 3, 4, 5] 
             row:1 [ 0, 1, 2, 3, 4, 5]           row:1 [ 0, 1, 2, 3, 4, 5]

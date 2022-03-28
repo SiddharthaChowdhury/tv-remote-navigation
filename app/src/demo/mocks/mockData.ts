@@ -3,13 +3,23 @@ import { IMockData } from "./IMockData";
 export const __mock__pageData: IMockData[] = [
   {
     label: "Stage data",
+    type: "stage",
     isLane: true,
-    data: [{ label: "Button 1" }, { label: "Button 2" }, { label: "Button 3" }],
+    data: [
+      { type: "stage-btn", label: "Button 1" },
+      { type: "stage-btn", label: "Button 2" },
+      { type: "stage-btn", label: "Button 3" },
+    ],
   },
 
   {
     label: "CTA",
-    data: [{ label: "Text 1" }, { label: "Text 2" }, { label: "Text 3" }],
+    type: "cta",
+    data: [
+      { type: "cta-text", label: "Text 1 Non-focusable item" },
+      { type: "cta-text", label: "Text 2 Non-focusable item" },
+      { type: "cta-text", label: "Text 3 Non-focusable item" },
+    ],
   },
 
   {
