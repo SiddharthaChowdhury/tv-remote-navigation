@@ -13,6 +13,10 @@ export interface INavigationRow {
 }
 
 export interface INavigationMap {
+  activeLayer: number;
+  layers: INavigationLayer;
+}
+export interface INavigationLayer {
   [layerId: string]: {
     lastFocusedVs: number[];
     vss: INavigationVs;

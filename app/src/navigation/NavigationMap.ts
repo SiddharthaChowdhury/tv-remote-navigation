@@ -22,7 +22,10 @@ import utilNavigation from "./utilNavigation";
 export interface INavigationMapState extends INavigationMapMeta {}
 
 class NavigationMap {
-  public map: INavigationMap = {};
+  public map: INavigationMap = {
+    activeLayer: 0,
+    layers: {},
+  };
   public activeState: INavigationMapState = {
     layer: 0,
     vs: [0, 0],
@@ -37,20 +40,21 @@ class NavigationMap {
   private checkToNavigateNextVs = (activeLayer: number, targetVs: number[]) => {
     const targetVsStr = utilNavigation.vsNumberArrToStr(targetVs);
 
-    if (!this.map[activeLayer].vss[targetVsStr]) return;
+    if (!this.map.layers[activeLayer].vss[targetVsStr]) return;
 
     const lastRecordedRowId =
-      this.map[activeLayer].vss[targetVsStr].lastFocusedRowIndex;
+      this.map.layers[activeLayer].vss[targetVsStr].lastFocusedRowIndex;
 
     this.activeState = {
       layer: this.activeState.layer,
       vs: targetVs,
       row: lastRecordedRowId,
-      item: this.map[activeLayer].vss[targetVsStr].rows[lastRecordedRowId]
-        .lastFocusedItemIndex,
+      item: this.map.layers[activeLayer].vss[targetVsStr].rows[
+        lastRecordedRowId
+      ].lastFocusedItemIndex,
     };
 
-    this.map[activeLayer].lastFocusedVs = targetVs;
+    this.map.layers[activeLayer].lastFocusedVs = targetVs;
   };
 
   private navigateVertical = (direction: ENavigationDirection) => {
@@ -68,17 +72,18 @@ class NavigationMap {
     }
 
     // if target row exist
-    if (this.map[activeLayer].vss[activeVsStr].rows[targetRow]) {
+    if (this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]) {
       // Update activeState
       this.activeState = {
         ...this.activeState,
         row: targetRow,
-        item: this.map[activeLayer].vss[activeVsStr].rows[targetRow]
+        item: this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]
           .lastFocusedItemIndex,
       };
 
       // Update map record
-      this.map[activeLayer].vss[activeVsStr].lastFocusedRowIndex = targetRow;
+      this.map.layers[activeLayer].vss[activeVsStr].lastFocusedRowIndex =
+        targetRow;
 
       return;
     }
@@ -103,7 +108,9 @@ class NavigationMap {
 
     // if target Item exist
     if (
-      this.map[activeLayer].vss[activeVsStr].rows[activeRow].items[targetItem]
+      this.map.layers[activeLayer].vss[activeVsStr].rows[activeRow].items[
+        targetItem
+      ]
     ) {
       // update active state
       this.activeState = {
@@ -113,7 +120,7 @@ class NavigationMap {
       };
 
       // Update map record
-      this.map[activeLayer].vss[activeVsStr].rows[
+      this.map.layers[activeLayer].vss[activeVsStr].rows[
         activeRow
       ].lastFocusedItemIndex = targetItem;
 
@@ -139,8 +146,8 @@ class NavigationMap {
     vsXYId: number[], // like ["-1,0"] ,["0,0"], ["0,1"],
     layerId: number
   ) => {
-    if (!this.map[layerId]) {
-      this.map[layerId] = {
+    if (!this.map.layers[layerId]) {
+      this.map.layers[layerId] = {
         lastFocusedVs: vsXYId,
         vss: {},
       };
@@ -148,8 +155,8 @@ class NavigationMap {
 
     const vsXYIdStr = utilNavigation.vsNumberArrToStr(vsXYId);
 
-    if (this.map[layerId] && !this.map[layerId].vss[vsXYIdStr]) {
-      this.map[layerId].vss[vsXYIdStr] = {
+    if (this.map.layers[layerId] && !this.map.layers[layerId].vss[vsXYIdStr]) {
+      this.map.layers[layerId].vss[vsXYIdStr] = {
         rows: rowsDataObj,
         lastFocusedRowIndex: 0,
       };
@@ -163,7 +170,9 @@ class NavigationMap {
     rowIndex: number,
     itemIndex: number
   ) => {
-    if (!this.map[layerId]?.vss[vsIndex]?.rows[rowIndex]?.items[itemIndex]) {
+    if (
+      !this.map.layers[layerId]?.vss[vsIndex]?.rows[rowIndex]?.items[itemIndex]
+    ) {
       console.log("Violation map focus update");
       return;
     }
@@ -175,9 +184,9 @@ class NavigationMap {
     this.activeState.row = rowIndex;
     this.activeState.item = itemIndex;
 
-    this.map[layerId].lastFocusedVs = vsIdArr;
-    this.map[layerId].vss[vsIndex].lastFocusedRowIndex = rowIndex;
-    this.map[layerId].vss[vsIndex].rows[rowIndex].lastFocusedItemIndex =
+    this.map.layers[layerId].lastFocusedVs = vsIdArr;
+    this.map.layers[layerId].vss[vsIndex].lastFocusedRowIndex = rowIndex;
+    this.map.layers[layerId].vss[vsIndex].rows[rowIndex].lastFocusedItemIndex =
       itemIndex;
   };
 
