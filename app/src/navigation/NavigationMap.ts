@@ -131,13 +131,6 @@ class NavigationMap {
   }
 
   // ----------------------
-  //     CONSTRUCTOR
-  // ----------------------
-  constructor(rowDataObj: INavigationRow, vsId: number[], layerId: number) {
-    this.addNewVs(rowDataObj, vsId, layerId);
-  }
-
-  // ----------------------
   //     PUBLIC FNs
   // ----------------------
 

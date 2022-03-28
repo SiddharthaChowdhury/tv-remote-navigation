@@ -19,7 +19,8 @@ const createNewDummVsData = (vsId: number[], noLanes: number) => {
   return dummy;
 };
 
-const navObj = new NavigationMap(createNewDummVsData([0, 0], 2), [0, 0], 0);
+const navObj = new NavigationMap();
+navObj.addNewVs(createNewDummVsData([0, 0], 2), [0, 0], 0);
 navObj.addNewVs(createNewDummVsData([1, 0], 2), [1, 0], 0);
 
 navObj.addNewVs(createNewDummVsData([0, 1], 2), [0, 1], 0);
