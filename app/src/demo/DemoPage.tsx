@@ -22,7 +22,13 @@ const DemoPage = () => {
       e.preventDefault();
       switch (e.key) {
         case "ArrowRight":
-          mapObj.navigate(ENavigationDirection.RIGHT);
+          const nexttarget = mapObj.getNextNavigate(ENavigationDirection.RIGHT);
+          console.log(
+            'INTERCEPTING nav "RIGHT" before commit nextTarget=',
+            nexttarget
+          );
+
+          nexttarget && mapObj.updateMapData(nexttarget);
           break;
         case "ArrowLeft":
           mapObj.navigate(ENavigationDirection.LEFT);

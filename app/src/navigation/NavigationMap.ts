@@ -37,13 +37,28 @@ class NavigationMap {
   //     PRIVATE FNs
   // ----------------------
 
-  private checkToNavigateNextVs = (activeLayer: number, targetVs: number[]) => {
+  private checkToNavigateNextVs = (
+    activeLayer: number,
+    targetVs: number[],
+    skipCommit?: boolean
+  ) => {
     const targetVsStr = utilNavigation.vsNumberArrToStr(targetVs);
 
     if (!this.map.layers[activeLayer].vss[targetVsStr]) return;
 
     const lastRecordedRowId =
       this.map.layers[activeLayer].vss[targetVsStr].lastFocusedRowIndex;
+
+    if (skipCommit) {
+      return {
+        layer: this.activeState.layer,
+        vs: targetVs,
+        row: lastRecordedRowId,
+        item: this.map.layers[activeLayer].vss[targetVsStr].rows[
+          lastRecordedRowId
+        ].lastFocusedItemIndex,
+      };
+    }
 
     this.activeState = {
       layer: this.activeState.layer,
@@ -57,7 +72,10 @@ class NavigationMap {
     this.map.layers[activeLayer].lastFocusedVs = targetVs;
   };
 
-  private navigateVertical = (direction: ENavigationDirection) => {
+  private navigateVertical = (
+    direction: ENavigationDirection,
+    skipCommit?: boolean
+  ) => {
     const activeLayer = this.activeState.layer;
     const [activeVsX, activeVsY] = this.activeState.vs;
     const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
@@ -73,6 +91,15 @@ class NavigationMap {
 
     // if target row exist
     if (this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]) {
+      if (skipCommit) {
+        return {
+          ...this.activeState,
+          row: targetRow,
+          item: this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]
+            .lastFocusedItemIndex,
+        };
+      }
+
       // Update activeState
       this.activeState = {
         ...this.activeState,
@@ -88,10 +115,13 @@ class NavigationMap {
       return;
     }
     // check if target VS is next
-    this.checkToNavigateNextVs(activeLayer, targetVs);
+    return this.checkToNavigateNextVs(activeLayer, targetVs, skipCommit);
   };
 
-  private navigateHorizntal(direction: ENavigationDirection) {
+  private navigateHorizntal(
+    direction: ENavigationDirection,
+    skipCommit?: boolean
+  ) {
     const activeLayer = this.activeState.layer;
     const [activeVsX, activeVsY] = this.activeState.vs;
     const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
@@ -112,6 +142,14 @@ class NavigationMap {
         targetItem
       ]
     ) {
+      if (skipCommit) {
+        return {
+          ...this.activeState,
+          row: activeRow,
+          item: targetItem,
+        };
+      }
+
       // update active state
       this.activeState = {
         ...this.activeState,
@@ -127,7 +165,7 @@ class NavigationMap {
       return;
     }
     // check if target VS is next
-    this.checkToNavigateNextVs(activeLayer, targetVs);
+    return this.checkToNavigateNextVs(activeLayer, targetVs, skipCommit);
   }
 
   // ----------------------
@@ -156,42 +194,56 @@ class NavigationMap {
     }
   };
 
-  // Every time focus changes on the Map, this mothod hepls keeping the map uptodate with change
-  public updateMapData = (
-    layerId: number,
-    vsIndex: string,
-    rowIndex: number,
-    itemIndex: number
-  ) => {
-    if (
-      !this.map.layers[layerId]?.vss[vsIndex]?.rows[rowIndex]?.items[itemIndex]
-    ) {
+  // Every time focus changes on the Map, this method helps keeping the map up-to-date with the new change
+  // To be used for manual "setFocus()" purpose when needed
+  public updateMapData = (mapMeta: INavigationMapMeta) => {
+    const { layer, vs, row, item } = mapMeta;
+    const vsIndex = utilNavigation.vsNumberArrToStr(vs);
+
+    if (!this.map.layers[layer]?.vss[vsIndex]?.rows[row]?.items[item]) {
       console.log("Violation map focus update");
       return;
     }
 
     const vsIdArr = utilNavigation.vsStrToNumberArr(vsIndex);
 
-    this.activeState.layer = layerId;
+    this.activeState.layer = layer;
     this.activeState.vs = vsIdArr;
-    this.activeState.row = rowIndex;
-    this.activeState.item = itemIndex;
+    this.activeState.row = row;
+    this.activeState.item = item;
 
-    this.map.layers[layerId].lastFocusedVs = vsIdArr;
-    this.map.layers[layerId].vss[vsIndex].lastFocusedRowIndex = rowIndex;
-    this.map.layers[layerId].vss[vsIndex].rows[rowIndex].lastFocusedItemIndex =
-      itemIndex;
+    this.map.layers[layer].lastFocusedVs = vsIdArr;
+    this.map.layers[layer].vss[vsIndex].lastFocusedRowIndex = row;
+    this.map.layers[layer].vss[vsIndex].rows[row].lastFocusedItemIndex = item;
   };
 
+  // This method triggers the navigation and the resultant data-structure is updated
   public navigate = (direction: ENavigationDirection): INavigationMapMeta => {
+    let mapMeta: INavigationMapMeta | undefined;
     if (
       direction === ENavigationDirection.UP ||
       direction === ENavigationDirection.DOWN
-    )
-      this.navigateVertical(direction);
-    else this.navigateHorizntal(direction);
+    ) {
+      mapMeta = this.navigateVertical(direction);
+    } else {
+      mapMeta = this.navigateHorizntal(direction);
+    }
 
-    return this.activeState;
+    return mapMeta || this.activeState;
+  };
+
+  // This Mehod returns -- the next focus Item but DOES NOT commit to the map data-structure
+  // helpful for intercepting the navigation move, and if make any changes if needed
+  // The output of this function can then be passed to "updateMapData()" method to trigger the navigation update
+  public getNextNavigate = (
+    direction: ENavigationDirection
+  ): INavigationMapMeta | undefined => {
+    if (
+      direction === ENavigationDirection.UP ||
+      direction === ENavigationDirection.DOWN
+    ) {
+      return this.navigateVertical(direction, true);
+    } else return this.navigateHorizntal(direction, true);
   };
 }
 
