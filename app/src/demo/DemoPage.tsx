@@ -3,18 +3,19 @@ import NavigationMap from "../navigation/NavigationMap";
 import { MapProvider } from "./MapContext";
 import { __mock__navData, __mock__pageData } from "./mocks/mockData";
 import "./demoPage.css";
-import Nav from "./partials/Nav";
 import { ENavigationDirection } from "../navigation/types";
-import { setFocus } from "./setFocus";
 import utilNavigation from "../navigation/utilNavigation";
 import Content from "./partials/Content";
+import laneScrollHorizontal from "../scrolls/laneScrollHorizontal";
+import laneScrollVerical from "../scrolls/laneScrollVertical";
+import { animateFocus } from "../animations/animate_Focus";
 
 const DemoPage = () => {
   const { current: mapObj } = useRef<NavigationMap>(new NavigationMap());
 
   const paintFocus = useCallback(() => {
     const { layer, row, vs, item } = mapObj.activeState;
-    setFocus(utilNavigation.generateItemId(layer, vs, row, item));
+    animateFocus(utilNavigation.generateItemId(layer, vs, row, item));
   }, [mapObj.activeState]);
 
   useEffect(() => {
@@ -23,28 +24,38 @@ const DemoPage = () => {
       switch (e.key) {
         case "ArrowRight":
           const nexttarget = mapObj.getNextNavigate(ENavigationDirection.RIGHT);
-          console.log(
-            'INTERCEPTING nav "RIGHT" before commit nextTarget=',
-            nexttarget
-          );
-
+          if (!nexttarget) return;
+          laneScrollHorizontal(nexttarget, ENavigationDirection.RIGHT);
           nexttarget && mapObj.updateMapData(nexttarget);
+
           break;
         case "ArrowLeft":
-          mapObj.navigate(ENavigationDirection.LEFT);
+          const nexttarget1 = mapObj.getNextNavigate(ENavigationDirection.LEFT);
+          if (!nexttarget1) return;
+          laneScrollHorizontal(nexttarget1, ENavigationDirection.LEFT);
+
+          nexttarget1 && mapObj.updateMapData(nexttarget1);
           break;
         case "ArrowUp":
-          mapObj.navigate(ENavigationDirection.UP);
+          const nexttarget2 = mapObj.getNextNavigate(ENavigationDirection.UP);
+
+          if (!nexttarget2) return;
+          laneScrollVerical(nexttarget2, ENavigationDirection.UP);
+
+          nexttarget2 && mapObj.updateMapData(nexttarget2);
           break;
         case "ArrowDown":
-          mapObj.navigate(ENavigationDirection.DOWN);
+          const nexttarget3 = mapObj.getNextNavigate(ENavigationDirection.DOWN);
+
+          if (!nexttarget3) return;
+          laneScrollVerical(nexttarget3, ENavigationDirection.DOWN);
+
+          nexttarget3 && mapObj.updateMapData(nexttarget3);
           break;
       }
 
       paintFocus();
     });
-
-    paintFocus();
   }, [mapObj, paintFocus]);
 
   return (
@@ -54,8 +65,7 @@ const DemoPage = () => {
       }}
     >
       <div className="page">
-        <Nav layerId={0} vsId={[0, 0]} navData={__mock__navData} />
-        <Content layerId={0} vsId={[1, 0]} contentData={__mock__pageData} />
+        <Content layerId={0} vsId={[0, 0]} contentData={__mock__pageData} />
       </div>
     </MapProvider>
   );

@@ -19,6 +19,11 @@ const utilNavigation = {
     return `${utilNavigation.generateLaneId(layer, vs, row)}-${item}`;
   },
 
+  getElementIdFromNavMapMeta: (navMapMeta: INavigationMapMeta) => {
+    const { vs, layer, row, item } = navMapMeta;
+    return utilNavigation.generateItemId(layer, vs, row, item);
+  },
+
   itemIdToMapMeta: (itemIdStr: string): INavigationMapMeta => {
     const [layerId, vsIdStr, rowId, itemId] = itemIdStr.split("-");
     const vsId = utilNavigation.vsStrToNumberArr(vsIdStr);
