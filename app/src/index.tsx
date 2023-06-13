@@ -6,7 +6,7 @@ import { HomePage } from "./examples/Home.page";
 
 ReactDOM.render(
   <React.StrictMode>
-    <HomePage />
+    <HomePage grid />
   </React.StrictMode>,
   document.getElementById("root")
 );

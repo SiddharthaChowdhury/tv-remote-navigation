@@ -24,12 +24,6 @@ export const FocusLane = ({
 
   useEffect(() => {
     const focusedLaneId = mapObj.getFocusedLaneId();
-    // console.log(
-    //   '>>>>> PRE ##### ',
-    //   focusedLaneId,
-    //   laneFocusedState.current,
-    //   laneId.current,
-    // );
     if (focusedLaneId) {
       if (
         laneFocusedState.current === true &&

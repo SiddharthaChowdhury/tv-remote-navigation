@@ -44,6 +44,5 @@ The `enableGrid` flag enables grid navigation. `<FocusContainer enableGrid> </Fo
 
 ## TODO:
 
-1. setFocus (use pubsub instead of useEffects) https://www.npmjs.com/package/mitt
 2. Reorder map: append item (front and back) persisting the current focused Item
 3. GridContainer

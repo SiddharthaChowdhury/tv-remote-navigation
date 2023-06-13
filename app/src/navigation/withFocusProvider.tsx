@@ -1,4 +1,4 @@
-import React, { FC, useRef } from "react";
+import React, { FC, ReactElement, useRef } from "react";
 import NavigationMap from "./NavigationMap";
 import { IFocusProviderContext, TFocusRef } from "./types";
 
@@ -6,10 +6,11 @@ export type TypeMapContext = {
   mapObj: NavigationMap;
 };
 
-export const withFocusProvider = (Component: FC<any>, position: TFocusRef) => {
-  const FocusContext = React.createContext<TypeMapContext | null>(null);
-
-  return (props: any) => {
+export const withFocusProvider = function <T>(
+  Component: any,
+  position: TFocusRef
+) {
+  return function (props: T) {
     const focusRef = useRef<TFocusRef>({ ...position });
     const { current: navMapObj } = useRef<NavigationMap>(new NavigationMap());
 
@@ -18,10 +19,6 @@ export const withFocusProvider = (Component: FC<any>, position: TFocusRef) => {
       mapObj: navMapObj,
     };
 
-    return (
-      <FocusContext.Provider value={{ mapObj: navMapObj }}>
-        <Component {...props} context={focusContext} />
-      </FocusContext.Provider>
-    );
+    return <Component {...props} context={focusContext} />;
   };
 };

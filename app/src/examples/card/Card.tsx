@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IFocusItemProps } from "../../navigation/types";
 import { FocusItem } from "../../navigation/FocusItem";
+import { View, Text } from "../react-native.components";
 
 export interface ICardProps extends IFocusItemProps {
   focusKey?: string;
@@ -42,9 +43,6 @@ export const Card = ({
     </FocusItem>
   );
 };
-
-const View = (props: any) => <div {...props} />;
-const Text = (props: any) => <div {...props} />;
 
 const getStyle = (isItemFocused?: boolean) => {
   return {

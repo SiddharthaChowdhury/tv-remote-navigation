@@ -8,15 +8,15 @@ import { View, useTVEventHandler } from "./react-native.components";
 
 const TEST_FOCUS_KEY = "BLA_BLA_1";
 
-interface IHomePageProps extends IFocusProvider {
-  grid?: boolean;
+interface IHomePageOwnProps {
+  grid: boolean;
 }
+interface IHomePageProps extends IHomePageOwnProps, IFocusProvider {}
 
 const _HomePage = ({ grid, context }: IHomePageProps) => {
   const [_, setFocusState] = useState<any>(null);
 
   useTVEventHandler((evt: any) => {
-    console.log(">>>>>>> evt", evt);
     const keyType = evt.eventType.toUpperCase();
     switch (keyType) {
       case "LEFT":
@@ -111,7 +111,9 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
   );
 };
 
-export const HomePage = withFocusProvider(_HomePage, { layer: 0 });
+export const HomePage = withFocusProvider<IHomePageOwnProps>(_HomePage, {
+  layer: 0,
+});
 
 const getStyle = (isItemFocused?: boolean) => {
   return {
