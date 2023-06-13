@@ -3,6 +3,7 @@ import {
   INavigationMap,
   INavigationMapMeta,
   INavigationRow,
+  TCustomFocusKey,
 } from "./types";
 import utilNavigation from "./utilNavigation";
 
@@ -10,7 +11,7 @@ import utilNavigation from "./utilNavigation";
 
     { layer:0
 
-        vs:0,0 {Sidenav}                      vs:1,0 {body} 
+        vs:0,0 {Sidenav}                      vs:1,0 {body/section} 
         [                                   [
             row:0 [ 0, 1, 2, 3, 4, 5]           row:0 [ 0, 1, 2, 3, 4, 5] 
             row:1 [ 0, 1, 2, 3, 4, 5]           row:1 [ 0, 1, 2, 3, 4, 5]
@@ -22,6 +23,7 @@ import utilNavigation from "./utilNavigation";
 export interface INavigationMapState extends INavigationMapMeta {}
 
 class NavigationMap {
+  public customFocusKeyTable: TCustomFocusKey = {};
   public map: INavigationMap = {
     activeLayer: 0,
     layers: {},
@@ -37,6 +39,7 @@ class NavigationMap {
   //     PRIVATE FNs
   // ----------------------
 
+  // This function changes focus between Vs/Containers
   private checkToNavigateNextVs = (
     activeLayer: number,
     targetVs: number[],
@@ -60,6 +63,7 @@ class NavigationMap {
       };
     }
 
+    // Update the active state
     this.activeState = {
       layer: this.activeState.layer,
       vs: targetVs,
@@ -70,16 +74,19 @@ class NavigationMap {
     };
 
     this.map.layers[activeLayer].lastFocusedVs = targetVs;
+    // Broadcast focus changed
+    // emitter.emit("itemFocused", this.activeState);
   };
 
   private navigateVertical = (
     direction: ENavigationDirection,
-    skipCommit?: boolean
+    skipCommit?: boolean // if true; will only return next navState, but will not actually update the focus state in the map
   ) => {
     const activeLayer = this.activeState.layer;
     const [activeVsX, activeVsY] = this.activeState.vs;
     const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
     const activeRow = this.activeState.row;
+    const isGrid = !!this.map.layers[activeLayer].vss[activeVsStr].gridBehavior;
 
     let targetRow = activeRow + 1;
     let targetVs = [activeVsX, activeVsY + 1];
@@ -91,26 +98,37 @@ class NavigationMap {
 
     // if target row exist
     if (this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]) {
-      if (skipCommit) {
-        return {
-          ...this.activeState,
-          row: targetRow,
-          item: this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]
-            .lastFocusedItemIndex,
-        };
-      }
-
-      // Update activeState
-      this.activeState = {
+      const newState = {
         ...this.activeState,
         row: targetRow,
         item: this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow]
           .lastFocusedItemIndex,
       };
 
+      if (isGrid) {
+        const currentItemIndex = this.activeState.item;
+        if (
+          this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow].items[
+            currentItemIndex
+          ]
+        ) {
+          newState.item = currentItemIndex;
+        }
+      }
+
+      if (skipCommit) {
+        return newState;
+      }
+
+      // Update activeState
+      this.activeState = { ...newState };
+
       // Update map record
       this.map.layers[activeLayer].vss[activeVsStr].lastFocusedRowIndex =
         targetRow;
+
+      // Broadcast focus changed
+      // emitter.emit("itemFocused", this.activeState);
 
       return;
     }
@@ -118,7 +136,7 @@ class NavigationMap {
     return this.checkToNavigateNextVs(activeLayer, targetVs, skipCommit);
   };
 
-  private navigateHorizntal(
+  private navigateHorizontal(
     direction: ENavigationDirection,
     skipCommit?: boolean
   ) {
@@ -162,6 +180,9 @@ class NavigationMap {
         activeRow
       ].lastFocusedItemIndex = targetItem;
 
+      // Broadcast focus changed
+      // emitter.emit("itemFocused", this.activeState);
+
       return;
     }
     // check if target VS is next
@@ -172,10 +193,29 @@ class NavigationMap {
   //     PUBLIC FNs
   // ----------------------
 
+  // This function is responsible for mapping custom name to an item in the map.
+  public attachCustomFocusToItem = (
+    customName: string,
+    { layer, vs, row, item }: INavigationMapMeta
+  ) => {
+    const itemId = utilNavigation.generateItemId(layer, vs, row, item);
+    this.customFocusKeyTable[customName] = itemId;
+  };
+
+  // This function updates activeState to change the current focus to a custom-named item mapped in the "customFocusKeyTable"
+  public setFocus = (customName: string) => {
+    const realId = this.customFocusKeyTable[customName];
+    const mapMeta: INavigationMapMeta = utilNavigation.itemIdToMapMeta(realId);
+
+    this.updateMapData(mapMeta);
+  };
+
+  // This function adds a new container/vs to the map
   public addNewVs = (
     rowsDataObj: INavigationRow,
     vsXYId: number[], // like ["-1,0"] ,["0,0"], ["0,1"],
-    layerId: number
+    layerId: number,
+    enableGrid?: boolean
   ) => {
     if (!this.map.layers[layerId]) {
       this.map.layers[layerId] = {
@@ -190,34 +230,39 @@ class NavigationMap {
       this.map.layers[layerId].vss[vsXYIdStr] = {
         rows: rowsDataObj,
         lastFocusedRowIndex: 0,
+        gridBehavior: !!enableGrid,
       };
     }
   };
 
-  // Every time focus changes on the Map, this method helps keeping the map up-to-date with the new change
+  // This fn directly updates activeState, i.e. its useful when we want to change focus to any random item on the map.
   // To be used for manual "setFocus()" purpose when needed
+  // Every time focus changes on the Map, this method helps keeping the map up-to-date with the new change
   public updateMapData = (mapMeta: INavigationMapMeta) => {
     const { layer, vs, row, item } = mapMeta;
     const vsIndex = utilNavigation.vsNumberArrToStr(vs);
 
     if (!this.map.layers[layer]?.vss[vsIndex]?.rows[row]?.items[item]) {
-      console.log("Violation map focus update");
+      console.warn("[focus-lib] Violation map focus update");
       return;
     }
 
-    const vsIdArr = utilNavigation.vsStrToNumberArr(vsIndex);
-
     this.activeState.layer = layer;
-    this.activeState.vs = vsIdArr;
+    this.activeState.vs = vs;
     this.activeState.row = row;
     this.activeState.item = item;
 
-    this.map.layers[layer].lastFocusedVs = vsIdArr;
+    this.map.layers[layer].lastFocusedVs = vs;
     this.map.layers[layer].vss[vsIndex].lastFocusedRowIndex = row;
     this.map.layers[layer].vss[vsIndex].rows[row].lastFocusedItemIndex = item;
+
+    // Broadcast focus changed
+    // emitter.emit("itemFocused", this.activeState);
+
+    return this.activeState;
   };
 
-  // This method triggers the navigation and the resultant data-structure is updated
+  // This function triggers the navigation and the resultant data-structure is updated
   public navigate = (direction: ENavigationDirection): INavigationMapMeta => {
     let mapMeta: INavigationMapMeta | undefined;
     if (
@@ -226,13 +271,13 @@ class NavigationMap {
     ) {
       mapMeta = this.navigateVertical(direction);
     } else {
-      mapMeta = this.navigateHorizntal(direction);
+      mapMeta = this.navigateHorizontal(direction);
     }
 
     return mapMeta || this.activeState;
   };
 
-  // This Mehod returns -- the next focus Item but DOES NOT commit to the map data-structure
+  // This function returns -- the next focus Item but DOES NOT commit to the map data-structure
   // helpful for intercepting the navigation move, and if make any changes if needed
   // The output of this function can then be passed to "updateMapData()" method to trigger the navigation update
   public getNextNavigate = (
@@ -243,7 +288,77 @@ class NavigationMap {
       direction === ENavigationDirection.DOWN
     ) {
       return this.navigateVertical(direction, true);
-    } else return this.navigateHorizntal(direction, true);
+    } else return this.navigateHorizontal(direction, true);
+  };
+
+  // This let updating navigation behavior to gridStyle or the Default style
+  public changeVsNavBehavior = (
+    layer: number,
+    vs: number[],
+    gridBehavior: boolean
+  ) => {
+    const targetVsStr = utilNavigation.vsNumberArrToStr(vs);
+    this.map.layers[layer].vss[targetVsStr].gridBehavior = gridBehavior;
+  };
+
+  // This is helpful for getting, for example next modalId
+  public getNewNextLayer = () => {
+    const layerIndexes = Object.keys(this.map.layers || {}).map((index) =>
+      parseInt(index)
+    );
+    const currentMax = layerIndexes.length > 0 ? Math.max(...layerIndexes) : 0;
+
+    return currentMax + 1;
+  };
+
+  // This is helpful to derive next Vs/Page id
+  public getNewNextVs = (
+    layerIndex: string,
+    direction: "Left" | "Right" | "Up" | "Down" = "Down"
+  ): number[] => {
+    let nextVss = [0, 0];
+    if (!direction || !this.map.layers[layerIndex]?.vss) return nextVss;
+
+    const existingVs = Object.keys(this.map.layers[layerIndex].vss) || [];
+    existingVs.forEach((vsId) => {
+      const [x, y] = utilNavigation.vsStrToNumberArr(vsId);
+
+      if (direction === "Left" && x < nextVss[0]) {
+        nextVss[0] = x - 1;
+      }
+      if (direction === "Right" && x > nextVss[0]) {
+        nextVss[0] = x + 1;
+      }
+      if (direction === "Up" && x < nextVss[1]) {
+        nextVss[1] = x - 1;
+      }
+      if (direction === "Down" && x > nextVss[1]) {
+        nextVss[1] = x + 1;
+      }
+    });
+
+    return nextVss;
+  };
+
+  // Returns currently focused Item
+  public getFocusedItem = () => {
+    const { layer, vs, row, item } = this.activeState;
+
+    return utilNavigation.generateItemId(layer, vs, row, item);
+  };
+
+  // Returns the Lane/row which has a focused child
+  public getFocusedLaneId = () => {
+    const { layer, vs, row } = this.activeState;
+
+    return utilNavigation.generateLaneId(layer, vs, row);
+  };
+
+  // Returns the containerId which has a focused child
+  public getFocusedVsId = () => {
+    const { layer, vs } = this.activeState;
+
+    return utilNavigation.generateContainerId(layer, vs);
   };
 }
 

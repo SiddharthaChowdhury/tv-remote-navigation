@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import DemoPage from "./demo/DemoPage";
+import { HomePage } from "./examples/Home.page";
 
 ReactDOM.render(
   <React.StrictMode>
-    <DemoPage />
+    <HomePage />
   </React.StrictMode>,
   document.getElementById("root")
 );

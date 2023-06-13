@@ -1,3 +1,5 @@
+import NavigationMap from "./NavigationMap";
+
 export interface INavigationMapMeta {
   layer: number;
   vs: number[];
@@ -27,6 +29,7 @@ export interface INavigationVs {
   [vsID: string]: {
     lastFocusedRowIndex: number;
     rows: INavigationRow;
+    gridBehavior?: boolean;
   };
 }
 
@@ -36,3 +39,42 @@ export enum ENavigationDirection {
   UP = "UP",
   DOWN = "DOWN",
 }
+
+export type TFocusRef = {
+  layer: number;
+  vs?: number[]; // [x: number; y: number]
+  rows?: INavigationRow; // [ {"rowIndex": itemIndex[]} ]
+};
+
+interface IFocusCommonWrapperProps {
+  context: IFocusProviderContext;
+}
+
+export interface IFocusItemProps extends IFocusCommonWrapperProps {
+  parentIndex: number;
+  index?: number;
+  focusKey?: string;
+  onFocus?: (itemId: string) => void;
+  onBlur?: (itemId: string) => void;
+}
+
+export interface IFocusContainerProps extends IFocusCommonWrapperProps {
+  enableGrid?: boolean;
+  onChildGotFocused?: (containerId: string) => void;
+  onChildGotBlurred?: (containerId: string) => void;
+}
+
+export interface IFocusLaneProps extends IFocusContainerProps {
+  index: number;
+}
+
+export interface IFocusProviderContext {
+  focusRef: React.MutableRefObject<TFocusRef>;
+  mapObj: NavigationMap;
+}
+
+export interface IFocusProvider {
+  context: IFocusProviderContext;
+}
+
+export type TCustomFocusKey = Record<string, string>;
