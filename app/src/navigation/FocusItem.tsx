@@ -1,9 +1,9 @@
-import React, { useRef } from "react";
+import React, { memo, useRef } from "react";
 import { useEffect, useState } from "react";
 import { IFocusItemProps } from "./types";
 import utilNavigation from "./utilNavigation";
 
-export const FocusItem = ({
+const _FocusItem = ({
   children,
   focusKey,
   context,
@@ -88,3 +88,28 @@ export const FocusItem = ({
 
   return <>{children}</>;
 };
+
+export const FocusItem = memo(_FocusItem, (_, newProps) => {
+  const lastFocusedItemId = newProps.context.lastFocusedItemId;
+  const activeFocusedItemId = newProps.context.activeFocusedItemId;
+
+  if (
+    !newProps.context.focusRef.current.vs ||
+    !activeFocusedItemId ||
+    !newProps.index
+  )
+    return false;
+
+  const thisItemId = utilNavigation.generateItemId(
+    newProps.context.focusRef.current.layer,
+    newProps.context.focusRef.current.vs,
+    newProps.parentIndex,
+    newProps.index
+  );
+
+  if (thisItemId === activeFocusedItemId || thisItemId === lastFocusedItemId) {
+    return false; // ReRender
+  }
+
+  return true;
+});

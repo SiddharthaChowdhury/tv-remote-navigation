@@ -1,8 +1,8 @@
-import {INavigationMapMeta} from './types';
+import { INavigationMapMeta } from "./types";
 
 const utilNavigation = {
   vsStrToNumberArr: (vsIdString: string) => {
-    const [x, y] = vsIdString.split('_');
+    const [x, y] = vsIdString.split("_");
     return [parseInt(x), parseInt(y)];
   },
 
@@ -24,12 +24,17 @@ const utilNavigation = {
   },
 
   getElementIdFromNavMapMeta: (navMapMeta: INavigationMapMeta) => {
-    const {vs, layer, row, item} = navMapMeta;
+    const { vs, layer, row, item } = navMapMeta;
     return utilNavigation.generateItemId(layer, vs, row, item);
   },
 
+  itemIdToLaneId: (itemIdStr: string): string => {
+    const { layer, vs, row } = utilNavigation.itemIdToMapMeta(itemIdStr);
+    return utilNavigation.generateLaneId(layer, vs, row);
+  },
+
   itemIdToMapMeta: (itemIdStr: string): INavigationMapMeta => {
-    const [layerId, vsIdStr, rowId, itemId] = itemIdStr.split('-');
+    const [layerId, vsIdStr, rowId, itemId] = itemIdStr.split("-");
     const vsId = utilNavigation.vsStrToNumberArr(vsIdStr);
 
     return {

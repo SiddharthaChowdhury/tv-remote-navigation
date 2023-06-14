@@ -1,3 +1,23 @@
+## **`CONCEPT:`**
+
+    { layer:0 {Base-layer}
+
+        vs:0,0 {TopBar}
+        [
+            row:0 [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        ]
+
+        vs:0,1 {Main}
+        [
+            row:0 [ 0, 1, 2, 3, 4, 5]
+            row:1 [ 0, 1, 2, 3, 4, 5]
+            row:2 [ 0, 1, 2, 3, 4, 5]
+            row:3 [ 0, 1, 2, 3, 4, 5]
+        ],
+    }
+
+---
+
 ## **`<FocusContainer>`**
 
 This components defines a container/vs(virtual space). This is last-component/grandparent of the focusable tree. This is were the navigation engine generates the the navigable map object onComponent mount from the shared `focusRef` prop.
@@ -44,5 +64,4 @@ The `enableGrid` flag enables grid navigation. `<FocusContainer enableGrid> </Fo
 
 ## TODO:
 
-2. Reorder map: append item (front and back) persisting the current focused Item
 3. GridContainer

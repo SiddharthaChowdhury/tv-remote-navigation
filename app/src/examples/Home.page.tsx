@@ -1,35 +1,34 @@
 import { useEffect, useState } from "react";
-import { withFocusProvider } from "../navigation/withFocusProvider";
 import { ENavigationDirection, IFocusProvider } from "../navigation/types";
 import { FocusContainer } from "../navigation/FocusContainer";
 import { Card } from "./card/Card";
 import { FocusLane } from "../navigation/FocusLane";
 import { View, useTVEventHandler } from "./react-native.components";
+import { useFocusProvider } from "../navigation/useFocusProvider";
 
 const TEST_FOCUS_KEY = "BLA_BLA_1";
 
-interface IHomePageOwnProps {
+interface IHomePageProps {
   grid: boolean;
 }
-interface IHomePageProps extends IHomePageOwnProps, IFocusProvider {}
 
-const _HomePage = ({ grid, context }: IHomePageProps) => {
-  const [_, setFocusState] = useState<any>(null);
+export const HomePage = ({ grid }: IHomePageProps) => {
+  const focusContext = useFocusProvider({ layer: 0 });
 
   useTVEventHandler((evt: any) => {
     const keyType = evt.eventType.toUpperCase();
     switch (keyType) {
       case "LEFT":
-        context.mapObj.navigate(ENavigationDirection.LEFT);
+        focusContext.navigate(ENavigationDirection.LEFT);
         break;
       case "RIGHT":
-        context.mapObj.navigate(ENavigationDirection.RIGHT);
+        focusContext.navigate(ENavigationDirection.RIGHT);
         break;
       case "UP":
-        context.mapObj.navigate(ENavigationDirection.UP);
+        focusContext.navigate(ENavigationDirection.UP);
         break;
       case "DOWN":
-        context.mapObj.navigate(ENavigationDirection.DOWN);
+        focusContext.navigate(ENavigationDirection.DOWN);
         //   const nextTarget4 = mapCtx?.mapObj.getNextNavigate(
         //     ENavigationDirection.RIGHT,
         //   );
@@ -37,18 +36,25 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
         //   nextTarget4 && mapCtx?.mapObj.updateMapData(nextTarget4);
         break;
     }
-
-    setFocusState(context.mapObj.getFocusedItem());
   });
 
   const generateContent = (rowId: number) => {
-    const data = ["Block 1", "Block 2", "Block 3", "Block 4"];
+    const data = [
+      "Block 1",
+      "Block 2",
+      "Block 3",
+      "Block 4",
+      "Block 1",
+      "Block 2",
+      "Block 3",
+      "Block 4",
+    ];
 
     const items = data.map((content, itemIndex) => {
       return (
         <Card
           focusKey={itemIndex === 2 && rowId === 1 ? TEST_FOCUS_KEY : undefined}
-          context={context}
+          context={focusContext}
           parentIndex={rowId}
           index={itemIndex}
           key={itemIndex}
@@ -63,15 +69,16 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
 
   useEffect(() => {
     setTimeout(() => {
-      context.mapObj.setFocus(TEST_FOCUS_KEY);
-      setFocusState(context.mapObj.getFocusedItem());
-      console.log(">>>>>> TIMEOUT ", context.mapObj.activeState);
+      focusContext.setFocus(TEST_FOCUS_KEY);
+      // setFocusState(focusContext.mapObj.getFocusedItem());
     }, 3000);
   }, []);
 
+  // console.log(">>>>> ------------------------------------------");
+
   return (
     <FocusContainer
-      context={context}
+      context={focusContext}
       enableGrid={grid}
       onChildGotFocused={(containerId) =>
         console.log(">>>>>> Container Focused ", containerId)
@@ -83,7 +90,7 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
       <View style={getStyle().content}>
         <FocusLane
           index={0}
-          context={context}
+          context={focusContext}
           onChildGotFocused={(laneId) =>
             console.log(">>>>>> Lane Focused ", laneId)
           }
@@ -96,7 +103,7 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
 
         <FocusLane
           index={1}
-          context={context}
+          context={focusContext}
           onChildGotFocused={(laneId) =>
             console.log(">>>>>> Lane Focused ", laneId)
           }
@@ -106,14 +113,26 @@ const _HomePage = ({ grid, context }: IHomePageProps) => {
         >
           <View style={getStyle().row}>{generateContent(1)}</View>
         </FocusLane>
+        <FocusLane
+          index={2}
+          context={focusContext}
+          onChildGotFocused={(laneId) =>
+            console.log(">>>>>> Lane Focused ", laneId)
+          }
+          onChildGotBlurred={(laneId) =>
+            console.log(">>>>>>> Lane Blurred ", laneId)
+          }
+        >
+          <View style={getStyle().row}>{generateContent(2)}</View>
+        </FocusLane>
       </View>
     </FocusContainer>
   );
 };
 
-export const HomePage = withFocusProvider<IHomePageOwnProps>(_HomePage, {
-  layer: 0,
-});
+// export const HomePage = withFocusProvider<IHomePageOwnProps>(_HomePage, {
+//   layer: 0,
+// });
 
 const getStyle = (isItemFocused?: boolean) => {
   return {

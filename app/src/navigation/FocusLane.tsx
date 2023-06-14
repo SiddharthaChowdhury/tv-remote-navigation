@@ -1,9 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, memo } from "react";
 import { IFocusLaneProps } from "./types";
 import utilNavigation from "./utilNavigation";
 import React from "react";
 
-export const FocusLane = ({
+const _FocusLane = ({
   children,
   context,
   index,
@@ -49,3 +49,30 @@ export const FocusLane = ({
 
   return <>{children}</>;
 };
+
+export const FocusLane = memo(_FocusLane, (oldProps, newProps) => {
+  const lastFocusedItemId = newProps.context.lastFocusedItemId;
+  const activeFocusedItemId = newProps.context.activeFocusedItemId;
+
+  if (!newProps.context.focusRef.current.vs || !activeFocusedItemId)
+    return false;
+
+  const thisLaneId = utilNavigation.generateLaneId(
+    newProps.context.focusRef.current.layer,
+    newProps.context.focusRef.current.vs,
+    newProps.index
+  );
+  const activeLaneId = utilNavigation.itemIdToLaneId(activeFocusedItemId);
+
+  // Current lane is Focused!
+  if (activeLaneId === thisLaneId) {
+    return lastFocusedItemId === activeFocusedItemId; // ReRender when new Item is focused
+  }
+
+  // Current lane is NOT-Focused
+  // BUT last focused Item was in THIS-Lane => ReRender this lane (Blur State)
+  if (!lastFocusedItemId) return false;
+  const lastFocusedLaneId = utilNavigation.itemIdToLaneId(lastFocusedItemId);
+
+  return lastFocusedLaneId !== thisLaneId;
+});

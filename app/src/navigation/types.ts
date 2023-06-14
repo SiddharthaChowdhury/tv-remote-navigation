@@ -68,9 +68,11 @@ export interface IFocusLaneProps extends IFocusContainerProps {
   index: number;
 }
 
-export interface IFocusProviderContext {
+export interface IFocusProviderContext extends Record<string, any> {
   focusRef: React.MutableRefObject<TFocusRef>;
   mapObj: NavigationMap;
+  activeFocusedItemId?: string;
+  lastFocusedItemId?: string;
 }
 
 export interface IFocusProvider {
