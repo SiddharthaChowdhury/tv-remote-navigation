@@ -30,7 +30,6 @@ const ItemComponent = (props: ItemProps) => {
   );
 };
 
-const BASE_LAYER = 0;
 export const Modal = () => {
   const focusContext = useFocusProvider(MODAL_ID);
 
@@ -59,7 +58,6 @@ export const Modal = () => {
         focusListener.navigate(ENavigationDirection.DOWN, MODAL_ID);
         break;
     }
-    console.log(">>>> #### 2", focusContext.mapObj.name);
   });
 
   const data = [

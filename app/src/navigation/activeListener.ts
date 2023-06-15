@@ -27,10 +27,7 @@ class ActiveListener {
   ) => {
     const activeListenerName = this.getLastListenerName();
     if (activeListenerName !== registeredName) return;
-    console.log(
-      ">>>> #### ##########1",
-      this.listeners[activeListenerName].mapObj.name
-    );
+
     this.listeners[activeListenerName].navigate(direction);
   };
 
