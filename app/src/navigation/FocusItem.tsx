@@ -14,7 +14,8 @@ const _FocusItem = ({
 }: React.PropsWithChildren<IFocusItemProps>) => {
   const { focusRef, mapObj } = context;
   const currentId = useRef<string>("");
-  const [isFocused, setFocused] = useState(false);
+  const isFocused = useRef<boolean>(false);
+  // const [isFocused, setFocused] = useState(false);
 
   // Here we are finalizing/deriving the map
   useEffect(() => {
@@ -69,12 +70,13 @@ const _FocusItem = ({
     const focusedId = mapObj.getFocusedItem();
 
     if (focusedId === currentId.current && onFocus) {
-      setFocused(true);
+      isFocused.current = true;
+      // setFocused(true);
       onFocus(currentId.current);
     }
 
-    if (focusedId !== currentId.current && isFocused) {
-      setFocused(false);
+    if (focusedId !== currentId.current && isFocused.current) {
+      // setFocused(false);
       if (onBlur) {
         onBlur(currentId.current);
       }
@@ -86,20 +88,28 @@ const _FocusItem = ({
     mapObj.activeState.item,
   ]);
 
+  // console.log(">>>> ### ________________________ ", currentId.current);
   return <>{children}</>;
 };
 
 export const FocusItem = memo(_FocusItem, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
+  const activeLayer = newProps.context.mapObj.activeState.layer;
 
   if (
     !newProps.context.focusRef.current.vs ||
     !activeFocusedItemId ||
-    !newProps.index
-  )
-    return false;
-
+    newProps.index === undefined
+  ) {
+    console.log(
+      ">>>> ### ________________________ 1",
+      newProps.context.focusRef.current.vs,
+      activeFocusedItemId,
+      newProps.index
+    );
+    return false; // ReRender
+  }
   const thisItemId = utilNavigation.generateItemId(
     newProps.context.focusRef.current.layer,
     newProps.context.focusRef.current.vs,
@@ -108,6 +118,7 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
   );
 
   if (thisItemId === activeFocusedItemId || thisItemId === lastFocusedItemId) {
+    console.log(">>>> ### ________________________ 2", thisItemId);
     return false; // ReRender
   }
 

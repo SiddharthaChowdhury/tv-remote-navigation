@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ENavigationDirection, IFocusProvider } from "../navigation/types";
+import { useEffect } from "react";
+import { ENavigationDirection } from "../navigation/types";
 import { FocusContainer } from "../navigation/FocusContainer";
 import { Card } from "./card/Card";
 import { FocusLane } from "../navigation/FocusLane";
@@ -74,8 +74,6 @@ export const HomePage = ({ grid }: IHomePageProps) => {
     }, 3000);
   }, []);
 
-  // console.log(">>>>> ------------------------------------------");
-
   return (
     <FocusContainer
       context={focusContext}
@@ -129,10 +127,6 @@ export const HomePage = ({ grid }: IHomePageProps) => {
     </FocusContainer>
   );
 };
-
-// export const HomePage = withFocusProvider<IHomePageOwnProps>(_HomePage, {
-//   layer: 0,
-// });
 
 const getStyle = (isItemFocused?: boolean) => {
   return {

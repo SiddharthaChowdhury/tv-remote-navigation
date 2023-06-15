@@ -1,4 +1,4 @@
-import NavigationMap from "./NavigationMap";
+import NavigationMap, { INavigationMapState } from "./NavigationMap";
 
 export interface INavigationMapMeta {
   layer: number;
@@ -73,6 +73,13 @@ export interface IFocusProviderContext extends Record<string, any> {
   mapObj: NavigationMap;
   activeFocusedItemId?: string;
   lastFocusedItemId?: string;
+  switchToLayer: (layer: number) => void;
+  setFocus: (focusKey: string) => void;
+  navigate: (direction: ENavigationDirection) => void;
+  readNextMove: (
+    direction: ENavigationDirection
+  ) => INavigationMapMeta | undefined;
+  navigateManual: (mapMeta: INavigationMapMeta) => void;
 }
 
 export interface IFocusProvider {
@@ -80,3 +87,5 @@ export interface IFocusProvider {
 }
 
 export type TCustomFocusKey = Record<string, string>;
+
+export type TLayerActiveStates = Record<number, INavigationMapState>;

@@ -46,6 +46,7 @@ const _FocusLane = ({
       }
     }
   }, [mapObj.activeState.layer, mapObj.activeState.vs, mapObj.activeState.row]);
+  // console.log(">>>> ### ________________________ ", laneId.current);
 
   return <>{children}</>;
 };
@@ -53,12 +54,13 @@ const _FocusLane = ({
 export const FocusLane = memo(_FocusLane, (oldProps, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
+  const activeLayer = newProps.context.mapObj.activeState.layer;
 
   if (!newProps.context.focusRef.current.vs || !activeFocusedItemId)
     return false;
 
   const thisLaneId = utilNavigation.generateLaneId(
-    newProps.context.focusRef.current.layer,
+    activeLayer,
     newProps.context.focusRef.current.vs,
     newProps.index
   );

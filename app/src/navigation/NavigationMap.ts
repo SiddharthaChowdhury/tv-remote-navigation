@@ -4,6 +4,7 @@ import {
   INavigationMapMeta,
   INavigationRow,
   TCustomFocusKey,
+  TLayerActiveStates,
 } from "./types";
 import utilNavigation from "./utilNavigation";
 
@@ -21,18 +22,23 @@ import utilNavigation from "./utilNavigation";
     }
 */
 export interface INavigationMapState extends INavigationMapMeta {}
+const initialActiveState: INavigationMapState = {
+  layer: 0,
+  vs: [0, 0],
+  row: 0,
+  item: 0,
+};
 
 class NavigationMap {
-  public customFocusKeyTable: TCustomFocusKey = {};
+  public customFocusKeyTable: TCustomFocusKey = {}; // Dictionary of Custom focus keys
+  public layerActiveState: TLayerActiveStates = {}; // To keep record of active state, useful when switching between layers {[layer]: INavigationMapState}
+
   public map: INavigationMap = {
     activeLayer: 0,
     layers: {},
   };
   public activeState: INavigationMapState = {
-    layer: 0,
-    vs: [0, 0],
-    row: 0,
-    item: 0,
+    ...initialActiveState,
   };
 
   // ----------------------
@@ -192,6 +198,25 @@ class NavigationMap {
   // ----------------------
   //     PUBLIC FNs
   // ----------------------
+
+  // Switch layers
+  // Restores previous activeState from each layer (if exists)
+  // @param reset: layer to not restore previous active state
+  public switchLayer = (layer: number, reset?: boolean) => {
+    const currentActiveState = this.activeState;
+    if (currentActiveState.layer === layer) return;
+
+    if (this.layerActiveState[layer] && !reset) {
+      this.layerActiveState[currentActiveState.layer] = this.activeState;
+      this.activeState = this.layerActiveState[layer];
+    } else {
+      this.layerActiveState[currentActiveState.layer] = this.activeState;
+      this.activeState = {
+        ...initialActiveState,
+        layer,
+      };
+    }
+  };
 
   // This function is responsible for mapping custom name to an item in the map.
   public attachCustomFocusToItem = (
