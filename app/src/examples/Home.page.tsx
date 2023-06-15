@@ -5,30 +5,33 @@ import { Card } from "./card/Card";
 import { FocusLane } from "../navigation/FocusLane";
 import { View, useTVEventHandler } from "./react-native.components";
 import { useFocusProvider } from "../navigation/useFocusProvider";
+import { focusListener } from "../navigation/activeListener";
 
 const TEST_FOCUS_KEY = "BLA_BLA_1";
+const PAGE_ID = "HOMEPAGE";
 
 interface IHomePageProps {
+  showModal?: boolean;
   grid: boolean;
 }
 
 export const HomePage = ({ grid }: IHomePageProps) => {
-  const focusContext = useFocusProvider({ layer: 0 });
+  const focusContext = useFocusProvider(PAGE_ID);
 
   useTVEventHandler((evt: any) => {
     const keyType = evt.eventType.toUpperCase();
     switch (keyType) {
       case "LEFT":
-        focusContext.navigate(ENavigationDirection.LEFT);
+        focusListener.navigate(ENavigationDirection.LEFT, PAGE_ID);
         break;
       case "RIGHT":
-        focusContext.navigate(ENavigationDirection.RIGHT);
+        focusListener.navigate(ENavigationDirection.RIGHT, PAGE_ID);
         break;
       case "UP":
-        focusContext.navigate(ENavigationDirection.UP);
+        focusListener.navigate(ENavigationDirection.UP, PAGE_ID);
         break;
       case "DOWN":
-        focusContext.navigate(ENavigationDirection.DOWN);
+        focusListener.navigate(ENavigationDirection.DOWN, PAGE_ID);
         //   const nextTarget4 = mapCtx?.mapObj.getNextNavigate(
         //     ENavigationDirection.RIGHT,
         //   );
@@ -68,10 +71,16 @@ export const HomePage = ({ grid }: IHomePageProps) => {
   };
 
   useEffect(() => {
+    focusListener.register(PAGE_ID, focusContext);
+
     setTimeout(() => {
       focusContext.setFocus(TEST_FOCUS_KEY);
       // setFocusState(focusContext.mapObj.getFocusedItem());
     }, 3000);
+
+    return () => {
+      focusListener.deregister(PAGE_ID);
+    };
   }, []);
 
   return (

@@ -102,12 +102,6 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
     !activeFocusedItemId ||
     newProps.index === undefined
   ) {
-    console.log(
-      ">>>> ### ________________________ 1",
-      newProps.context.focusRef.current.vs,
-      activeFocusedItemId,
-      newProps.index
-    );
     return false; // ReRender
   }
   const thisItemId = utilNavigation.generateItemId(
@@ -118,7 +112,6 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
   );
 
   if (thisItemId === activeFocusedItemId || thisItemId === lastFocusedItemId) {
-    console.log(">>>> ### ________________________ 2", thisItemId);
     return false; // ReRender
   }
 

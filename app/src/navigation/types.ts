@@ -75,7 +75,7 @@ export interface IFocusProviderContext extends Record<string, any> {
   lastFocusedItemId?: string;
   switchToLayer: (layer: number) => void;
   setFocus: (focusKey: string) => void;
-  navigate: (direction: ENavigationDirection) => void;
+  // navigate: (direction: ENavigationDirection) => void;
   readNextMove: (
     direction: ENavigationDirection
   ) => INavigationMapMeta | undefined;

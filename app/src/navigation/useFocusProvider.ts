@@ -7,9 +7,9 @@ import {
   INavigationMapMeta,
 } from "./types";
 
-export const useFocusProvider = (basePosition: TFocusRef) => {
-  const focusRef = useRef<TFocusRef>({ ...basePosition });
-  const { current: navMapObj } = useRef<NavigationMap>(new NavigationMap());
+export const useFocusProvider = (name?: string) => {
+  const focusRef = useRef<TFocusRef>({ layer: 0 });
+  const { current: navMapObj } = useRef<NavigationMap>(new NavigationMap(name));
   const lastFocusedItem = useRef<string | undefined>();
   const focusedItem = useRef<string | undefined>();
 

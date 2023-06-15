@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 
-export const View = (props: any) => <div {...props} />;
-export const Text = (props: any) => <div {...props} />;
+export const View = ({ children, ...rest }: any) => (
+  <div {...rest}>{children}</div>
+);
+export const Text = ({ children, ...rest }: any) => (
+  <div {...rest}>{children}</div>
+);
 
 export const useTVEventHandler = (
   callback: (evnt: { eventType: string }) => void

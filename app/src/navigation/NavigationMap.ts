@@ -30,6 +30,7 @@ const initialActiveState: INavigationMapState = {
 };
 
 class NavigationMap {
+  public name: string = "";
   public customFocusKeyTable: TCustomFocusKey = {}; // Dictionary of Custom focus keys
   public layerActiveState: TLayerActiveStates = {}; // To keep record of active state, useful when switching between layers {[layer]: INavigationMapState}
 
@@ -40,6 +41,10 @@ class NavigationMap {
   public activeState: INavigationMapState = {
     ...initialActiveState,
   };
+
+  constructor(name: string = "") {
+    this.name = name;
+  }
 
   // ----------------------
   //     PRIVATE FNs
