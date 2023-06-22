@@ -17,6 +17,7 @@ const ItemComponent = (props: ItemProps) => {
       context={props.context}
       parentIndex={props.parentIndex}
       index={props.index}
+      focusKey={props.focusKey}
       onFocus={(id) => {
         console.log(">>>>>>> Focused Item", id);
         setFocus(true);
@@ -29,14 +30,20 @@ const ItemComponent = (props: ItemProps) => {
     </FocusItem>
   );
 };
-
+const TEST_FOCUS_KEY_2 = "BLA_233";
 export const Modal = () => {
   const focusContext = useFocusProvider(MODAL_ID);
 
   useEffect(() => {
     focusListener.register(MODAL_ID, focusContext);
+    // focusContext.switchToLayer(1);
+
+    setTimeout(() => {
+      focusListener.setFocus(TEST_FOCUS_KEY_2);
+    }, 1_000);
 
     return () => {
+      //   focusContext.switchToLayer(0);
       focusListener.deregister(MODAL_ID);
     };
   }, []);
@@ -78,6 +85,11 @@ export const Modal = () => {
                   parentIndex={rowIndex}
                   index={itemIndex}
                   key={itemIndex}
+                  focusKey={
+                    itemIndex === 1 && rowIndex === 1
+                      ? TEST_FOCUS_KEY_2
+                      : undefined
+                  }
                 >
                   {item}
                 </ItemComponent>

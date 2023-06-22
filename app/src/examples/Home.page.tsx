@@ -42,7 +42,7 @@ export const HomePage = ({ grid }: IHomePageProps) => {
   });
 
   const generateContent = (rowId: number) => {
-    const data = [
+    let data = [
       "Block 1",
       "Block 2",
       "Block 3",
@@ -52,6 +52,10 @@ export const HomePage = ({ grid }: IHomePageProps) => {
       "Block 3",
       "Block 4",
     ];
+
+    if (rowId == 1) {
+      data = data.splice(2, 3);
+    }
 
     const items = data.map((content, itemIndex) => {
       return (
@@ -74,7 +78,7 @@ export const HomePage = ({ grid }: IHomePageProps) => {
     focusListener.register(PAGE_ID, focusContext);
 
     setTimeout(() => {
-      focusContext.setFocus(TEST_FOCUS_KEY);
+      focusListener.setFocus(TEST_FOCUS_KEY);
       // setFocusState(focusContext.mapObj.getFocusedItem());
     }, 3000);
 

@@ -23,26 +23,35 @@ Below is a very minimal example of the focus management library
       );
     };
 
-    const BASE_LAYER = 0;
+    const PAGE_ID = 'DEMO_PAGE_1
     export const DemoPageMinimal = () => {
-      // Initiate focus navigation ()
-      const focusContext = useFocusProvider({layer: BASE_LAYER});
+      const focusContext = useFocusProvider(PAGE_ID);
+
+      useEffect(() => {
+        focusListener.register(PAGE_ID, focusContext);
+
+        return () => {
+          // On unmount deregister from listener stack
+          focusListener.deregister(PAGE_ID);
+        };
+      }, []);
 
       useTVEventHandler((evt: any) => {
         if (evt.eventKeyAction === 0) return; // 0 === press down, 1 === press up
+
         const keyType = evt.eventType.toUpperCase();
         switch (keyType) {
-          case 'LEFT':
-            focusContext.navigate(ENavigationDirection.LEFT);
+          case "LEFT":
+            focusListener.navigate(ENavigationDirection.LEFT, PAGE_ID);
             break;
-          case 'RIGHT':
-            focusContext.navigate(ENavigationDirection.RIGHT);
+          case "RIGHT":
+            focusListener.navigate(ENavigationDirection.RIGHT, PAGE_ID);
             break;
-          case 'UP':
-            focusContext.navigate(ENavigationDirection.UP);
+          case "UP":
+            focusListener.navigate(ENavigationDirection.UP, PAGE_ID);
             break;
-          case 'DOWN':
-            focusContext.navigate(ENavigationDirection.DOWN);
+          case "DOWN":
+            focusListener.navigate(ENavigationDirection.DOWN, PAGE_ID);
             break;
         }
       });
@@ -98,9 +107,9 @@ Below is a very minimal example of the focus management library
 
 # The building blocks are described below
 
-## **`useFocusProvider({layer: LAYER_INDEX})`**
+## **`useFocusProvider(contextName?: string, layer?: number)`**
 
-This hook initiates the focus library. It returns a context (not react Context) which exposes basic navigation properties and functions like `activeFocusedItemId`, `navigate()`, `setFocus()` and many more (For details FIND THE DEDICATED SECTION below). Most importantly the returned context from this hook is a **required** props for each of the building blocks described below.
+This hook initiates the focus library. It returns a context (not react Context) which exposes basic navigation properties and functions. Most importantly the returned context from this hook is a **required** props for each of the building blocks described below.
 
 ## **`<FocusContainer>`**
 
@@ -145,9 +154,13 @@ Any focusable item should be wrapped within this component. This component is re
 
 ---
 
-## TODO:
+## **`ActiveListener`**
 
-1. `useFocusProvider()` doesnt support layering atm (for now modal navigation can be done only by calling `useFocusProvider()` from inside the modal component, down side is there, reopening modal will lose the previous focus state). Possible refactor of `useFocusProvider()` includes
+This class is responsible for maintaining instances of contexts, and is a must have, when we have modals(layers) involved. It exposes `navigate()` and `setFocus()` function which helps in specifically targeting a particular layer and their respective contexts.
 
-- Restructure `focusRef` to follow `{[layerId]: TFocusRef}`
-- Then for `memo` in `<FocusItem>` and `<FocusLane>` get the `layerId` from `context.mapObj.activeState.layer` to get the active focused layer
+### Usage
+
+- **`register()`**: To use active listener you need to `register()` it first on componentMount. This function takes a the mandatory param `name` (a unique name) as the ID to the 2nd param `context` (this you get as return value of `useFocusProvider()`)
+- **`deregister()`**: on componentDismount to clear the context from the ActiveListener. It take the registered `name` as a param.
+- **`navigate()`**: This function helps you navigate in particular direction
+- **`setFocus()`**: This helps in changing current focus an a particular `<FocusItem/>`

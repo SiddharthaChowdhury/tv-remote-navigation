@@ -31,6 +31,18 @@ class ActiveListener {
     this.listeners[activeListenerName].navigate(direction);
   };
 
+  public setFocus = (focusKey: string, registeredName?: string) => {
+    if (!focusKey) return;
+    const targetListenerName = registeredName || this.getLastListenerName();
+    const context = this.listeners[targetListenerName];
+
+    if (context) {
+      context.setFocus(focusKey);
+      return;
+    }
+    console.warn("[focus-lib]-  activeListeners:setFocus: failed");
+  };
+
   public deregister = (name: string) => {
     console.log("[focus-lib]-  activeListeners:deregister: in process");
     const activeListenerName = this.getLastListenerName();

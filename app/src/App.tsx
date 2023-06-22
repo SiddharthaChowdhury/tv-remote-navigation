@@ -13,7 +13,7 @@ export const App = () => {
 
     setTimeout(() => {
       setShowModal(false);
-    }, 10_000);
+    }, 15_000);
   }, []);
 
   return (

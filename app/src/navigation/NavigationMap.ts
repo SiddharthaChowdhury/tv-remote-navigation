@@ -117,14 +117,31 @@ class NavigationMap {
       };
 
       if (isGrid) {
-        const currentItemIndex = this.activeState.item;
-        if (
-          this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow].items[
-            currentItemIndex
-          ]
-        ) {
-          newState.item = currentItemIndex;
-        }
+        // const currentItemIndex = this.activeState.item;
+        // Check the availability of next item and shift index to left if not available
+        let targetIndex = this.activeState.item;
+        let isTargetIndexUnavailable = false;
+        do {
+          if (
+            this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow].items[
+              targetIndex
+            ] === undefined
+          ) {
+            targetIndex -= 1;
+            isTargetIndexUnavailable = true;
+          } else {
+            isTargetIndexUnavailable = false;
+          }
+        } while (isTargetIndexUnavailable && targetIndex >= 0);
+
+        newState.item = targetIndex;
+        // if (
+        //   this.map.layers[activeLayer].vss[activeVsStr].rows[targetRow].items[
+        //     currentItemIndex
+        //   ]
+        // ) {
+        //   newState.item = currentItemIndex;
+        // }
       }
 
       if (skipCommit) {

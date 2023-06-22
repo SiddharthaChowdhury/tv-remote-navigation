@@ -74,7 +74,7 @@ export interface IFocusProviderContext extends Record<string, any> {
   activeFocusedItemId?: string;
   lastFocusedItemId?: string;
   switchToLayer: (layer: number) => void;
-  setFocus: (focusKey: string) => void;
+  // setFocus: (focusKey: string) => void;
   // navigate: (direction: ENavigationDirection) => void;
   readNextMove: (
     direction: ENavigationDirection
