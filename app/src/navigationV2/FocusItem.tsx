@@ -1,21 +1,21 @@
-import React, { memo, useRef } from "react";
-import { useEffect, useState } from "react";
-import { IFocusItemProps } from "./types";
-import utilNavigation from "./utilNavigation";
+import React, {memo, useRef} from 'react';
+import {useEffect, useState} from 'react';
+import {IFocusItemProps} from './types';
+import utilNavigation from './utilNavigation';
 
 const _FocusItem = ({
   children,
   focusKey,
+  itemWidth,
   context,
   parentIndex,
   index,
   onFocus,
   onBlur,
 }: React.PropsWithChildren<IFocusItemProps>) => {
-  const { focusRef, mapObj } = context;
-  const currentId = useRef<string>("");
+  const {focusRef, mapObj} = context;
+  const currentId = useRef<string>('');
   const isFocused = useRef<boolean>(false);
-  // const [isFocused, setFocused] = useState(false);
 
   // Here we are finalizing/deriving the map
   useEffect(() => {
@@ -23,17 +23,16 @@ const _FocusItem = ({
       return;
     }
 
-    const currentLayerId = focusRef.current.layer || 0;
     if (!focusRef.current.vs) {
-      const vsArr = mapObj.getNewNextVs(currentLayerId.toString());
+      const vsArr = mapObj.getNewNextVs();
       focusRef.current.vs = vsArr;
     }
+
     const currentVsId = focusRef.current.vs;
     const itemId = utilNavigation.generateItemId(
-      currentLayerId,
       currentVsId,
       parentIndex,
-      index
+      index,
     );
 
     if (!focusRef.current.rows) {
@@ -46,14 +45,15 @@ const _FocusItem = ({
       };
     }
 
-    const itemSet = new Set(focusRef.current.rows[parentIndex].items);
-    itemSet.add(itemId);
-    focusRef.current.rows[parentIndex].items = Array.from(itemSet);
+    focusRef.current.rows[parentIndex].items[index] = {
+      widthMedian: (itemWidth || 0) / 2,
+      value: 0, // Summed value is derived in lane
+      name: itemId,
+    };
 
     // attaching custom focus key
     if (focusKey) {
       mapObj.attachCustomFocusToItem(focusKey, {
-        layer: focusRef.current.layer,
         vs: focusRef.current.vs,
         row: parentIndex,
         item: index,
@@ -71,22 +71,16 @@ const _FocusItem = ({
 
     if (focusedId === currentId.current && onFocus) {
       isFocused.current = true;
-      // setFocused(true);
+
       onFocus(currentId.current);
     }
 
     if (focusedId !== currentId.current && isFocused.current) {
-      // setFocused(false);
       if (onBlur) {
         onBlur(currentId.current);
       }
     }
-  }, [
-    mapObj.activeState.layer,
-    mapObj.activeState.vs,
-    mapObj.activeState.row,
-    mapObj.activeState.item,
-  ]);
+  }, [mapObj.activeState.vs, mapObj.activeState.row, mapObj.activeState.item]);
 
   // console.log(">>>> ### ________________________ ", currentId.current);
   return <>{children}</>;
@@ -95,7 +89,6 @@ const _FocusItem = ({
 export const FocusItem = memo(_FocusItem, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
-  const activeLayer = newProps.context.mapObj.activeState.layer;
 
   if (
     !newProps.context.focusRef.current.vs ||
@@ -104,11 +97,11 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
   ) {
     return false; // ReRender
   }
+
   const thisItemId = utilNavigation.generateItemId(
-    newProps.context.focusRef.current.layer,
     newProps.context.focusRef.current.vs,
     newProps.parentIndex,
-    newProps.index
+    newProps.index,
   );
 
   if (thisItemId === activeFocusedItemId || thisItemId === lastFocusedItemId) {

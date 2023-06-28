@@ -1,17 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import NavigationMap from "./NavigationMap";
 import {
   TFocusRef,
   IFocusProviderContext,
   ENavigationDirection,
-  INavigationMapMeta,
+  INavMapMeta,
 } from "./types";
+import NavigationMapV2 from "./NavSpacialMap";
 
-export const useFocusProvider = (contextName?: string, layer: number = 0) => {
-  const focusRef = useRef<TFocusRef>({ layer });
-  const { current: navMapObj } = useRef<NavigationMap>(
-    new NavigationMap(contextName)
-  );
+export const useFocusProvider = () => {
+  const focusRef = useRef<TFocusRef>({});
+  const { current: navMapObj } = useRef<NavigationMapV2>(new NavigationMapV2());
   const lastFocusedItem = useRef<string | undefined>();
   const focusedItem = useRef<string | undefined>();
 
@@ -37,16 +35,7 @@ export const useFocusProvider = (contextName?: string, layer: number = 0) => {
     setFocusState();
   };
 
-  const readNextMove = (direction: ENavigationDirection) => {
-    return navMapObj.getNextNavigate(direction);
-  };
-
-  const switchToLayer = (layer: number) => {
-    navMapObj.switchLayer(layer);
-    setFocusState();
-  };
-
-  const navigateManual = (mapMeta: INavigationMapMeta) => {
+  const navigateManual = (mapMeta: INavMapMeta) => {
     navMapObj.updateMapData(mapMeta);
     setFocusState();
   };
@@ -58,8 +47,6 @@ export const useFocusProvider = (contextName?: string, layer: number = 0) => {
     lastFocusedItemId: lastFocusedItem.current,
     navigate,
     setFocus,
-    readNextMove,
-    switchToLayer,
     navigateManual,
   };
 

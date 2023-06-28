@@ -5,7 +5,7 @@ import utilNavigation from "./utilNavigation";
 export const FocusContainer = ({
   children,
   context,
-  enableGrid,
+  behavior,
   onChildGotFocused,
   onChildGotBlurred,
 }: React.PropsWithChildren<IFocusContainerProps>) => {
@@ -16,22 +16,22 @@ export const FocusContainer = ({
   // Registering new container in the map
   useEffect(() => {
     if (!focusRef.current) return;
-    const { rows, vs, layer } = focusRef.current;
+    const { rows, vs } = focusRef.current;
 
     if (!rows || !vs) return;
-    mapObj.addNewVs(rows, vs, layer, enableGrid);
-    containerId.current = utilNavigation.generateContainerId(layer, vs);
+    mapObj.addNewVs(rows, vs, behavior);
+    containerId.current = utilNavigation.generateContainerId(vs);
   }, []);
 
   // When switching from default layout to grid layout movement (or vice-versa)
   useEffect(() => {
-    if (enableGrid !== undefined && mapObj) {
+    if (behavior !== undefined && mapObj) {
       if (!focusRef.current?.vs) return;
-      const { vs, layer } = focusRef.current;
+      const { vs } = focusRef.current;
 
-      mapObj.changeVsNavBehavior(layer, vs, enableGrid);
+      mapObj.changeVsNavBehavior(vs, behavior);
     }
-  }, [enableGrid]);
+  }, [behavior]);
 
   // Detect container focus and blur
   useEffect(() => {
@@ -57,7 +57,7 @@ export const FocusContainer = ({
         console.log(">>>>>>>>>>>>>>>> Container FOCUSED", containerId.current);
       }
     }
-  }, [mapObj.activeState.layer, mapObj.activeState.vs]);
+  }, [mapObj.activeState.vs]);
 
   return <>{children}</>;
 };

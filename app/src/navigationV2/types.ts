@@ -1,49 +1,49 @@
-import NavigationMap, { INavigationMapState } from "./NavigationMap";
+import NavigationMapV2 from './NavSpacialMap';
 
-export interface INavigationMapMeta {
-  layer: number;
+export interface INavMapMeta {
   vs: number[];
   row: number;
   item: number;
 }
 
-export interface INavigationRow {
+export interface INavMapItem {
+  name: string;
+  value: number;
+  widthMedian: number; // is basically the center point of the item : (width_of_item/2)
+}
+
+export interface INavMapRow {
   [rowIndex: number]: {
     lastFocusedItemIndex: number;
-    items: string[];
+    items: INavMapItem[];
   };
 }
 
-export interface INavigationMap {
-  activeLayer: number;
-  layers: INavigationLayer;
-}
-export interface INavigationLayer {
-  [layerId: string]: {
-    lastFocusedVs: number[];
-    vss: INavigationVs;
-  };
-}
+export type TVsBehavior = 'default' | 'grid' | 'spacial-rows';
 
-export interface INavigationVs {
+export interface INavMapVs {
   [vsID: string]: {
+    behavior: TVsBehavior;
     lastFocusedRowIndex: number;
-    rows: INavigationRow;
-    gridBehavior?: boolean;
+    rows: INavMapRow;
   };
+}
+
+export interface INavMap {
+  lastFocusedVs: number[];
+  vss: INavMapVs;
 }
 
 export enum ENavigationDirection {
-  LEFT = "LEFT",
-  RIGHT = "RIGHT",
-  UP = "UP",
-  DOWN = "DOWN",
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+  UP = 'UP',
+  DOWN = 'DOWN',
 }
 
 export type TFocusRef = {
-  layer: number;
   vs?: number[]; // [x: number; y: number]
-  rows?: INavigationRow; // [ {"rowIndex": itemIndex[]} ]
+  rows?: INavMapRow; // [ {"rowIndex": itemIndex[]} ]
 };
 
 interface IFocusCommonWrapperProps {
@@ -52,6 +52,7 @@ interface IFocusCommonWrapperProps {
 
 export interface IFocusItemProps extends IFocusCommonWrapperProps {
   parentIndex: number;
+  itemWidth?: number; // useful for spacialNavigation
   index?: number;
   focusKey?: string;
   onFocus?: (itemId: string) => void;
@@ -59,7 +60,7 @@ export interface IFocusItemProps extends IFocusCommonWrapperProps {
 }
 
 export interface IFocusContainerProps extends IFocusCommonWrapperProps {
-  enableGrid?: boolean;
+  behavior?: TVsBehavior;
   onChildGotFocused?: (containerId: string) => void;
   onChildGotBlurred?: (containerId: string) => void;
 }
@@ -70,22 +71,16 @@ export interface IFocusLaneProps extends IFocusContainerProps {
 
 export interface IFocusProviderContext extends Record<string, any> {
   focusRef: React.MutableRefObject<TFocusRef>;
-  mapObj: NavigationMap;
-  activeFocusedItemId?: string;
-  lastFocusedItemId?: string;
-  switchToLayer: (layer: number) => void;
+  mapObj: NavigationMapV2;
+  // activeFocusedItemId?: string;
+  // lastFocusedItemId?: string;
   // setFocus: (focusKey: string) => void;
   // navigate: (direction: ENavigationDirection) => void;
-  readNextMove: (
-    direction: ENavigationDirection
-  ) => INavigationMapMeta | undefined;
-  navigateManual: (mapMeta: INavigationMapMeta) => void;
+  // readNextMove: (direction: ENavigationDirection) => INavMapMeta | undefined;
+  // navigateManual: (mapMeta: INavMapMeta) => void;
 }
 
 export interface IFocusProvider {
   context: IFocusProviderContext;
 }
-
 export type TCustomFocusKey = Record<string, string>;
-
-export type TLayerActiveStates = Record<number, INavigationMapState>;

@@ -2,7 +2,7 @@ import { ENavigationDirection, IFocusProviderContext } from "./types";
 
 type TListeners = Record<string, IFocusProviderContext>;
 
-class ActiveListener {
+class FocusListener {
   private listeners: TListeners = {};
   private listenerStack: string[] = [];
 
@@ -13,7 +13,7 @@ class ActiveListener {
   public register = (name: string, context: IFocusProviderContext) => {
     if (this.listeners[name]) {
       console.warn(
-        "[focus-lib]- activeListeners: named listener already exists. Please use 'clearListener()' before registering again."
+        "[focus-lib]- focusListener: named listener already exists. Please use 'clearListener()' before registering again."
       );
       return;
     }
@@ -25,10 +25,10 @@ class ActiveListener {
     direction: ENavigationDirection,
     registeredName: string
   ) => {
-    const activeListenerName = this.getLastListenerName();
-    if (activeListenerName !== registeredName) return;
+    const focusListenerName = this.getLastListenerName();
+    if (focusListenerName !== registeredName) return;
 
-    this.listeners[activeListenerName].navigate(direction);
+    this.listeners[focusListenerName].navigate(direction);
   };
 
   public setFocus = (focusKey: string, registeredName?: string) => {
@@ -40,13 +40,13 @@ class ActiveListener {
       context.setFocus(focusKey);
       return;
     }
-    console.warn("[focus-lib]-  activeListeners:setFocus: failed");
+    console.warn("[focus-lib]-  focusListener:setFocus: failed");
   };
 
   public deregister = (name: string) => {
-    console.log("[focus-lib]-  activeListeners:deregister: in process");
-    const activeListenerName = this.getLastListenerName();
-    if (this.listeners[name] && activeListenerName === name) {
+    console.log("[focus-lib]-  focusListener:deregister: in process");
+    const focusListenerName = this.getLastListenerName();
+    if (this.listeners[name] && focusListenerName === name) {
       this.listenerStack.pop();
 
       // @ts-ignore
@@ -57,9 +57,9 @@ class ActiveListener {
     }
 
     console.warn(
-      "[focus-lib]- activeListeners:deregister: Either name was wrong or deregister is not in proper order (some child component's listener is live)."
+      "[focus-lib]- focusListener:deregister: Either name was wrong or deregister is not in proper order (some child component's listener is live)."
     );
   };
 }
 
-export const focusListener = new ActiveListener();
+export const focusListener = new FocusListener();
