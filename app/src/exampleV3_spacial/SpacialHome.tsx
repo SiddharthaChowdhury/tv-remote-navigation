@@ -41,7 +41,7 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         focusListener.navigate(ENavigationDirection.DOWN, PAGE_ID);
         break;
       case "SELECT":
-        focusListener.onKeyDown(PAGE_ID);
+        focusListener.onSelectUp(PAGE_ID);
         break;
     }
   });

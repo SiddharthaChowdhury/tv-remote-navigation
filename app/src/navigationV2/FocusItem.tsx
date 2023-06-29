@@ -96,7 +96,7 @@ const _FocusItem = ({
   return <>{children}</>;
 };
 
-export const FocusItem = memo(_FocusItem, (oldProps, newProps) => {
+export const FocusItem = memo(_FocusItem, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
   const clickedItemInfo = newProps.context.mapObj.clickedItem;

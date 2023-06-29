@@ -57,7 +57,7 @@ const _FocusLane = ({
   return <>{children}</>;
 };
 
-export const FocusLane = memo(_FocusLane, (oldProps, newProps) => {
+export const FocusLane = memo(_FocusLane, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
   const clickedItemInfo = newProps.context.mapObj.clickedItem;

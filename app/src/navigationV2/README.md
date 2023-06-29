@@ -175,3 +175,5 @@ Simply put - the layer which is at the very top of the stack- gets all the focus
 - **`deregister()`**: on componentDismount to clear the context from the ActiveListener. It take the registered `name` as a param.
 - **`navigate()`**: This function helps you navigate in particular direction
 - **`setFocus()`**: This helps in changing current focus an a particular `<FocusItem/>`
+- **`onSelectUp()`**: This function should be used to clear the click record from the navigation map
+- **`onSelectDown()`**: This function is used trigger click on item
