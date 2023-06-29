@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IFocusItemProps } from "../../navigationV2/types";
-import { FocusItem } from "../../navigationV2/FocusItem";
 import { View, Text } from "../../react-native.components";
+import { FocusItem } from "../../navigationV2/FocusItem";
 
 const getRandomSize = () => {
   function randomSize(min: number, max: number) {

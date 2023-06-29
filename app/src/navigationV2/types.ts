@@ -1,4 +1,9 @@
-import NavigationMapV2 from './NavSpacialMap';
+import NavigationMapV2 from "./NavSpacialMap";
+
+export interface INavMapClick {
+  itemId?: string;
+  repeatCount?: number;
+}
 
 export interface INavMapMeta {
   vs: number[];
@@ -19,7 +24,7 @@ export interface INavMapRow {
   };
 }
 
-export type TVsBehavior = 'default' | 'grid' | 'spacial-rows';
+export type TVsBehavior = "default" | "grid" | "spacial-rows";
 
 export interface INavMapVs {
   [vsID: string]: {
@@ -35,10 +40,10 @@ export interface INavMap {
 }
 
 export enum ENavigationDirection {
-  LEFT = 'LEFT',
-  RIGHT = 'RIGHT',
-  UP = 'UP',
-  DOWN = 'DOWN',
+  LEFT = "LEFT",
+  RIGHT = "RIGHT",
+  UP = "UP",
+  DOWN = "DOWN",
 }
 
 export type TFocusRef = {
@@ -57,6 +62,7 @@ export interface IFocusItemProps extends IFocusCommonWrapperProps {
   focusKey?: string;
   onFocus?: (itemId: string) => void;
   onBlur?: (itemId: string) => void;
+  onKeyPress?: (itemId: string) => void;
 }
 
 export interface IFocusContainerProps extends IFocusCommonWrapperProps {
@@ -72,12 +78,6 @@ export interface IFocusLaneProps extends IFocusContainerProps {
 export interface IFocusProviderContext extends Record<string, any> {
   focusRef: React.MutableRefObject<TFocusRef>;
   mapObj: NavigationMapV2;
-  // activeFocusedItemId?: string;
-  // lastFocusedItemId?: string;
-  // setFocus: (focusKey: string) => void;
-  // navigate: (direction: ENavigationDirection) => void;
-  // readNextMove: (direction: ENavigationDirection) => INavMapMeta | undefined;
-  // navigateManual: (mapMeta: INavMapMeta) => void;
 }
 
 export interface IFocusProvider {

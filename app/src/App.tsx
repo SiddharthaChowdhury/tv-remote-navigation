@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { HomePage } from "./examples/Home.page";
-import { View } from "./examples/react-native.components";
-import { Modal } from "./examplesV2/Modal";
-import { HomePageV2 } from "./examplesV2/HomeV2.page";
 import { SpacialHomeExV3 } from "./exampleV3_spacial/SpacialHome";
+import { View } from "./react-native.components";
 
 export const App = () => {
   const [showModal, setShowModal] = useState(false);
@@ -23,7 +20,7 @@ export const App = () => {
       {/* <HomePage grid showModal={showModal} /> */}
       {/* <HomePageV2 behavior="grid" />
       {showModal && <Modal />} */}
-      <SpacialHomeExV3 behavior={"spacial-rows"} />
+      <SpacialHomeExV3 behavior={"default"} />
     </View>
   );
 };

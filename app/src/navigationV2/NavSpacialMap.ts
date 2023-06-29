@@ -1,6 +1,7 @@
 import {
   ENavigationDirection,
   INavMap,
+  INavMapClick,
   INavMapMeta,
   INavMapRow,
   TCustomFocusKey,
@@ -24,6 +25,8 @@ class NavigationMapV2 {
     ...initialActiveState,
   };
 
+  public clickedItem: INavMapClick = {};
+
   // ----------------------
   //     PRIVATE FNs
   // ----------------------
@@ -37,13 +40,13 @@ class NavigationMapV2 {
 
     if (!this.map.vss[targetVsStr]) return;
 
-    const lastRecordedRowId = this.map.vss[targetVsStr].lastFocusedRowIndex;
+    const lastRecordedRowId = this.map.vss[targetVsStr]!.lastFocusedRowIndex;
 
     if (skipCommit) {
       return {
         vs: targetVs,
         row: lastRecordedRowId,
-        item: this.map.vss[targetVsStr].rows[lastRecordedRowId]
+        item: this.map.vss[targetVsStr]!.rows[lastRecordedRowId]!
           .lastFocusedItemIndex,
       };
     }
@@ -52,7 +55,7 @@ class NavigationMapV2 {
     this.activeState = {
       vs: targetVs,
       row: lastRecordedRowId,
-      item: this.map.vss[targetVsStr].rows[lastRecordedRowId]
+      item: this.map.vss[targetVsStr]!.rows[lastRecordedRowId]!
         .lastFocusedItemIndex,
     };
 
@@ -63,11 +66,11 @@ class NavigationMapV2 {
     direction: ENavigationDirection,
     skipCommit?: boolean // if true; will only return next navState, but will not actually update the focus state in the map
   ) => {
-    const [activeVsX, activeVsY] = this.activeState.vs;
+    const [activeVsX = 0, activeVsY = 0] = this.activeState.vs;
     const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
     const activeRowIndex = this.activeState.row;
     const activeItemIndex = this.activeState.item;
-    const behavior = this.map.vss[activeVsStr].behavior;
+    const behavior = this.map.vss[activeVsStr]?.behavior;
 
     let targetRow = activeRowIndex + 1;
     let targetVs = [activeVsX, activeVsY + 1];
@@ -78,11 +81,11 @@ class NavigationMapV2 {
     }
 
     // if target row exist
-    if (this.map.vss[activeVsStr].rows[targetRow]) {
+    if (this.map.vss[activeVsStr]?.rows[targetRow]) {
       const newState = {
         ...this.activeState,
         row: targetRow,
-        item: this.map.vss[activeVsStr].rows[targetRow].lastFocusedItemIndex,
+        item: this.map.vss[activeVsStr]!.rows[targetRow]!.lastFocusedItemIndex,
       };
 
       if (behavior === "grid") {
@@ -91,7 +94,7 @@ class NavigationMapV2 {
         let isTargetIndexUnavailable = false;
         do {
           if (
-            this.map.vss[activeVsStr].rows[targetRow].items[targetIndex] ===
+            this.map.vss[activeVsStr]!.rows[targetRow]!.items[targetIndex] ===
             undefined
           ) {
             targetIndex -= 1;
@@ -104,13 +107,17 @@ class NavigationMapV2 {
         newState.item = targetIndex;
       }
 
-      if (behavior === "spacial-rows") {
+      if (
+        behavior === "spacial-rows" &&
+        this.map.vss[activeVsStr]?.rows[activeRowIndex]?.items[activeItemIndex]
+      ) {
         let activeItemValue =
-          this.map.vss[activeVsStr].rows[activeRowIndex].items[activeItemIndex]
-            .value;
+          this.map.vss[activeVsStr]!.rows[activeRowIndex]!.items[
+            activeItemIndex
+          ]!.value;
 
         const targetRowItems = [
-          ...this.map.vss[activeVsStr].rows[targetRow].items,
+          ...(this.map.vss[activeVsStr]?.rows[targetRow]?.items || []),
         ];
 
         let closestSumValueToActiveItemValue = targetRowItems.sort(
@@ -119,10 +126,10 @@ class NavigationMapV2 {
             Math.abs(activeItemValue - b.value)
         )[0];
 
-        let targetIndex = this.map.vss[activeVsStr].rows[
+        let targetIndex = this.map.vss[activeVsStr]!.rows[
           targetRow
-        ].items.findIndex(
-          ({ name }) => name === closestSumValueToActiveItemValue.name
+        ]?.items.findIndex(
+          ({ name }) => name === closestSumValueToActiveItemValue?.name
         );
 
         if (targetIndex === -1) {
@@ -132,7 +139,7 @@ class NavigationMapV2 {
           targetIndex = 0;
         }
 
-        newState.item = targetIndex;
+        newState.item = targetIndex || 0;
       }
 
       if (skipCommit) {
@@ -143,10 +150,7 @@ class NavigationMapV2 {
       this.activeState = { ...newState };
 
       // Update map record
-      this.map.vss[activeVsStr].lastFocusedRowIndex = targetRow;
-
-      // Broadcast focus changed
-      // emitter.emit("itemFocused", this.activeState);
+      this.map.vss[activeVsStr]!.lastFocusedRowIndex = targetRow;
 
       return;
     }
@@ -158,7 +162,7 @@ class NavigationMapV2 {
     direction: ENavigationDirection,
     skipCommit?: boolean
   ) {
-    const [activeVsX, activeVsY] = this.activeState.vs;
+    const [activeVsX = 0, activeVsY = 0] = this.activeState.vs;
     const activeVsStr = utilNavigation.vsNumberArrToStr(this.activeState.vs);
     const activeRowIndex = this.activeState.row;
     const activeItemIndex = this.activeState.item;
@@ -172,7 +176,9 @@ class NavigationMapV2 {
     }
 
     // if target Item exist
-    if (this.map.vss[activeVsStr].rows[activeRowIndex].items[targetItemIndex]) {
+    if (
+      this.map.vss[activeVsStr]?.rows[activeRowIndex]?.items[targetItemIndex]
+    ) {
       if (skipCommit) {
         return {
           ...this.activeState,
@@ -189,11 +195,8 @@ class NavigationMapV2 {
       };
 
       // Update map record
-      this.map.vss[activeVsStr].rows[activeRowIndex].lastFocusedItemIndex =
+      this.map.vss[activeVsStr]!.rows[activeRowIndex]!.lastFocusedItemIndex =
         targetItemIndex;
-
-      // Broadcast focus changed
-      // emitter.emit("itemFocused", this.activeState);
 
       return;
     }
@@ -201,8 +204,35 @@ class NavigationMapV2 {
     return this.checkToNavigateNextVs(targetVs, skipCommit);
   }
 
+  // ----------------------
+  //     PUBLIC FNs
+  // ----------------------
+
+  // This function denotes currently clicked Item; It also allows to clear the clicked Item
+  public clickSelectedItem = (shouldClear: "clear" | undefined) => {
+    if (shouldClear === "clear") {
+      this.clickedItem = {};
+      return;
+    }
+
+    const { vs, row, item } = this.activeState;
+    const itemId = utilNavigation.generateItemId(vs, row, item);
+
+    if (this.clickedItem.itemId === itemId) {
+      this.clickedItem.repeatCount! += 1;
+      return;
+    }
+
+    this.clickedItem = {
+      itemId,
+      repeatCount: 1,
+    };
+  };
+
   // This function triggers the navigation and the resultant data-structure is updated
   public navigate = (direction: ENavigationDirection): INavMapMeta => {
+    this.clickedItem = {};
+
     let mapMeta: INavMapMeta | undefined;
     if (
       direction === ENavigationDirection.UP ||
@@ -242,11 +272,8 @@ class NavigationMapV2 {
     this.activeState.item = item;
 
     this.map.lastFocusedVs = vs;
-    this.map.vss[vsIndex].lastFocusedRowIndex = row;
-    this.map.vss[vsIndex].rows[row].lastFocusedItemIndex = item;
-
-    // Broadcast focus changed
-    // emitter.emit("itemFocused", this.activeState);
+    this.map.vss[vsIndex]!.lastFocusedRowIndex = row;
+    this.map.vss[vsIndex]!.rows[row]!.lastFocusedItemIndex = item;
 
     return this.activeState;
   };
@@ -254,6 +281,9 @@ class NavigationMapV2 {
   // This function updates activeState to change the current focus to a custom-named item mapped in the "customFocusKeyTable"
   public setFocus = (customName: string) => {
     const realId = this.customFocusKeyTable[customName];
+
+    if (realId === undefined) return;
+
     const mapMeta: INavMapMeta = utilNavigation.itemIdToMapMeta(realId);
 
     this.updateMapData(mapMeta);
@@ -285,18 +315,18 @@ class NavigationMapV2 {
 
     const existingVs = Object.keys(this.map.vss) || [];
     existingVs.forEach((vsId) => {
-      const [x, y] = utilNavigation.vsStrToNumberArr(vsId);
+      const [x = 0, y = 0] = utilNavigation.vsStrToNumberArr(vsId);
 
-      if (direction === "Left" && x < nextVss[0]) {
+      if (direction === "Left" && x < nextVss[0]!) {
         nextVss[0] = x - 1;
       }
-      if (direction === "Right" && x > nextVss[0]) {
+      if (direction === "Right" && x > nextVss[0]!) {
         nextVss[0] = x + 1;
       }
-      if (direction === "Up" && x < nextVss[1]) {
+      if (direction === "Up" && x < nextVss[1]!) {
         nextVss[1] = x - 1;
       }
-      if (direction === "Down" && x > nextVss[1]) {
+      if (direction === "Down" && x > nextVss[1]!) {
         nextVss[1] = x + 1;
       }
     });
@@ -328,7 +358,9 @@ class NavigationMapV2 {
   // This let updating navigation behavior to gridStyle or the Default style
   public changeVsNavBehavior = (vs: number[], behavior: TVsBehavior) => {
     const targetVsStr = utilNavigation.vsNumberArrToStr(vs);
-    this.map.vss[targetVsStr].behavior = behavior;
+    if (!this.map.vss[targetVsStr]) return;
+
+    this.map.vss[targetVsStr]!.behavior = behavior;
   };
 }
 

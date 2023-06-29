@@ -19,6 +19,7 @@ export const useTVEventHandler = (
       if (e.key === "ArrowLeft") eventType = "left";
       if (e.key === "ArrowUp") eventType = "up";
       if (e.key === "ArrowDown") eventType = "down";
+      if (e.key === "Enter") eventType = "select";
 
       return callback({ eventType });
     });

@@ -1,7 +1,7 @@
-import React, {memo, useRef} from 'react';
-import {useEffect, useState} from 'react';
-import {IFocusItemProps} from './types';
-import utilNavigation from './utilNavigation';
+import React, { memo, useRef } from "react";
+import { useEffect, useState } from "react";
+import { IFocusItemProps } from "./types";
+import utilNavigation from "./utilNavigation";
 
 const _FocusItem = ({
   children,
@@ -12,9 +12,10 @@ const _FocusItem = ({
   index,
   onFocus,
   onBlur,
+  onKeyPress,
 }: React.PropsWithChildren<IFocusItemProps>) => {
-  const {focusRef, mapObj} = context;
-  const currentId = useRef<string>('');
+  const { focusRef, mapObj } = context;
+  const currentId = useRef<string>("");
   const isFocused = useRef<boolean>(false);
 
   // Here we are finalizing/deriving the map
@@ -32,7 +33,7 @@ const _FocusItem = ({
     const itemId = utilNavigation.generateItemId(
       currentVsId,
       parentIndex,
-      index,
+      index
     );
 
     if (!focusRef.current.rows) {
@@ -82,13 +83,23 @@ const _FocusItem = ({
     }
   }, [mapObj.activeState.vs, mapObj.activeState.row, mapObj.activeState.item]);
 
-  // console.log(">>>> ### ________________________ ", currentId.current);
+  // This triggers onKeyPress
+  useEffect(() => {
+    if (context.mapObj.clickedItem.itemId === currentId.current && onKeyPress) {
+      onKeyPress(currentId.current);
+    }
+  }, [
+    context.mapObj.clickedItem.itemId,
+    context.mapObj.clickedItem.repeatCount,
+  ]);
+
   return <>{children}</>;
 };
 
-export const FocusItem = memo(_FocusItem, (_, newProps) => {
+export const FocusItem = memo(_FocusItem, (oldProps, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
+  const clickedItemInfo = newProps.context.mapObj.clickedItem;
 
   if (
     !newProps.context.focusRef.current.vs ||
@@ -101,8 +112,12 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
   const thisItemId = utilNavigation.generateItemId(
     newProps.context.focusRef.current.vs,
     newProps.parentIndex,
-    newProps.index,
+    newProps.index
   );
+
+  if (clickedItemInfo.itemId === thisItemId) {
+    return false;
+  }
 
   if (thisItemId === activeFocusedItemId || thisItemId === lastFocusedItemId) {
     return false; // ReRender

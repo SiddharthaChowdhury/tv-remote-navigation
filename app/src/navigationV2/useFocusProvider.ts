@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
+import type {
   TFocusRef,
   IFocusProviderContext,
   ENavigationDirection,
@@ -14,6 +14,7 @@ export const useFocusProvider = () => {
   const focusedItem = useRef<string | undefined>();
 
   const [_, setFocusedItem] = useState<string | undefined>();
+  const [__, setClickedItem] = useState<string | undefined>();
 
   useEffect(() => {
     setFocusState();
@@ -40,6 +41,20 @@ export const useFocusProvider = () => {
     setFocusState();
   };
 
+  const triggerItemPress = () => {
+    navMapObj.clickSelectedItem(undefined);
+    if (navMapObj.clickedItem.itemId) {
+      setClickedItem(
+        `${navMapObj.clickedItem.itemId}:${navMapObj.clickedItem.repeatCount}`
+      );
+    }
+  };
+
+  const triggerItemRelease = () => {
+    navMapObj.clickSelectedItem("clear");
+    setClickedItem(undefined);
+  };
+
   const focusContext: IFocusProviderContext = {
     focusRef,
     mapObj: navMapObj,
@@ -48,6 +63,8 @@ export const useFocusProvider = () => {
     navigate,
     setFocus,
     navigateManual,
+    triggerItemPress,
+    triggerItemRelease,
   };
 
   return focusContext;

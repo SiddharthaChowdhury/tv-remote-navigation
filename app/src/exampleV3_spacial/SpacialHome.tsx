@@ -26,6 +26,7 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
 
   useTVEventHandler((evt: any) => {
     const keyType = evt.eventType.toUpperCase();
+
     switch (keyType) {
       case "LEFT":
         focusListener.navigate(ENavigationDirection.LEFT, PAGE_ID);
@@ -38,6 +39,9 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         break;
       case "DOWN":
         focusListener.navigate(ENavigationDirection.DOWN, PAGE_ID);
+        break;
+      case "SELECT":
+        focusListener.onKeyDown(PAGE_ID);
         break;
     }
   });
@@ -84,7 +88,7 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
 
   useEffect(() => {
     focusListener.register(PAGE_ID, focusContext);
-    console.log(">>>>>>>>>> MAP Obj", focusContext.mapObj.map);
+    // console.log(">>>>>>>>>> MAP Obj", focusContext.mapObj.map);
     setTimeout(() => {
       focusListener.setFocus(TEST_FOCUS_KEY);
       // setFocusState(focusContext.mapObj.getFocusedItem());

@@ -1,7 +1,7 @@
-import {useRef, useEffect, memo} from 'react';
-import {IFocusLaneProps} from './types';
-import utilNavigation from './utilNavigation';
-import React from 'react';
+import { useRef, useEffect, memo } from "react";
+import { IFocusLaneProps } from "./types";
+import utilNavigation from "./utilNavigation";
+import React from "react";
 
 const _FocusLane = ({
   children,
@@ -11,19 +11,19 @@ const _FocusLane = ({
   onChildGotFocused,
 }: React.PropsWithChildren<IFocusLaneProps>) => {
   const laneFocusedState = useRef<boolean>(false);
-  const laneId = useRef<string>('');
-  const {focusRef, mapObj} = context;
+  const laneId = useRef<string>("");
+  const { focusRef, mapObj } = context;
 
   useEffect(() => {
     if (!focusRef.current || index === undefined) return;
-    const {rows, vs} = focusRef.current;
+    const { rows, vs } = focusRef.current;
 
     if (!rows || !vs) return;
     laneId.current = utilNavigation.generateLaneId(vs, index);
 
     let sum = 0;
-    const itemsWithValue = rows[index].items.map(item => {
-      const updatedItem = {...item, value: item.widthMedian + sum};
+    const itemsWithValue = rows[index].items.map((item) => {
+      const updatedItem = { ...item, value: item.widthMedian + sum };
       sum += item.widthMedian;
       return updatedItem;
     });
@@ -41,7 +41,6 @@ const _FocusLane = ({
       ) {
         laneFocusedState.current = false;
         onChildGotBlurred(laneId.current);
-        console.log('>>>>>>>>>>>>>>>> Lane BLURRED REF=0002', laneId.current);
       }
 
       if (
@@ -51,11 +50,9 @@ const _FocusLane = ({
       ) {
         laneFocusedState.current = true;
         onChildGotFocused(laneId.current);
-        console.log('>>>>>>>>>>>>>>>> Lane FOCUSED REF=0002', laneId.current);
       }
     }
   }, [mapObj.activeState.vs, mapObj.activeState.row]);
-  // console.log(">>>> ### ________________________ ", laneId.current);
 
   return <>{children}</>;
 };
@@ -63,23 +60,41 @@ const _FocusLane = ({
 export const FocusLane = memo(_FocusLane, (oldProps, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
+  const clickedItemInfo = newProps.context.mapObj.clickedItem;
 
   if (!newProps.context.focusRef.current.vs || !activeFocusedItemId)
     return false;
 
   const thisLaneId = utilNavigation.generateLaneId(
     newProps.context.focusRef.current.vs,
-    newProps.index,
+    newProps.index
   );
   const activeLaneId = utilNavigation.itemIdToLaneId(activeFocusedItemId);
 
-  // Current lane is Focused!
+  /*  
+      Rerender CASE 1: Check if Clicked item was in the lane
+      Rerender CASE 2: Check if current lane is focused (when navigating within the lane)
+      Rerender CASE 3: Current lane is NOT-Focused. BUT last focused Item was in THIS-Lane => ReRender this lane (Blur State - navigating inter-lane)
+   */
+
+  // CASE 1:
+  if (clickedItemInfo.itemId) {
+    const clickedItemLaneId = utilNavigation.itemIdToLaneId(
+      clickedItemInfo.itemId
+    );
+
+    // if clicked item belongs to this lane => rerender
+    if (clickedItemLaneId === thisLaneId) {
+      return false;
+    }
+  }
+
+  // CASE 2:
   if (activeLaneId === thisLaneId) {
     return lastFocusedItemId === activeFocusedItemId; // ReRender when new Item is focused
   }
 
-  // Current lane is NOT-Focused
-  // BUT last focused Item was in THIS-Lane => ReRender this lane (Blur State)
+  // CASE 3:
   if (!lastFocusedItemId) return false;
   const lastFocusedLaneId = utilNavigation.itemIdToLaneId(lastFocusedItemId);
 
