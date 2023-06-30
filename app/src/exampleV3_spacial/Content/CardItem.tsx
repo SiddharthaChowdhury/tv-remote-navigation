@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IFocusItemProps } from "../../navigationV2/types";
-import { View, Text } from "../../react-native.components";
 import { FocusItem } from "../../navigationV2/FocusItem";
+import { View, Text } from "../../react-native.components";
 
 const getRandomSize = () => {
   function randomSize(min: number, max: number) {
@@ -9,7 +9,7 @@ const getRandomSize = () => {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
-  const sizes = [100, 300, 50, 20, 200, 150, 250, 170];
+  const sizes = [100, 270, 50, 20, 110, 150, 190, 170];
   return sizes[randomSize(0, 6)];
 };
 
@@ -60,7 +60,7 @@ const getStyle = (size: number, isItemFocused?: boolean) => {
   return {
     item: {
       width: size || 100,
-      height: 100,
+      height: 70,
       backgroundColor: isItemFocused ? "#f9c5c5" : "#4a4a4a",
       borderColor: "#000",
       borderWidth: 1,

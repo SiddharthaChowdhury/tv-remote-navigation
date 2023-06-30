@@ -66,12 +66,15 @@ export interface IFocusItemProps extends IFocusCommonWrapperProps {
 }
 
 export interface IFocusContainerProps extends IFocusCommonWrapperProps {
+  vsId?: number[];
   behavior?: TVsBehavior;
   onChildGotFocused?: (containerId: string) => void;
   onChildGotBlurred?: (containerId: string) => void;
 }
 
-export interface IFocusLaneProps extends IFocusContainerProps {
+export interface IFocusLaneProps extends IFocusCommonWrapperProps {
+  onChildGotFocused?: (containerId: string) => void;
+  onChildGotBlurred?: (containerId: string) => void;
   index: number;
 }
 

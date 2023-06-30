@@ -18,9 +18,13 @@ export const FocusContainer = ({
     if (!focusRef.current) return;
     const { rows, vs } = focusRef.current;
 
+    console.log(">>>>>>>>>>>>> ", vs, containerId.current);
+
     if (!rows || !vs) return;
     mapObj.addNewVs(rows, vs, behavior);
     containerId.current = utilNavigation.generateContainerId(vs);
+    context.clearFocusRef();
+    // context.focusRef.current = {};
   }, []);
 
   // When switching from default layout to grid layout movement (or vice-versa)
@@ -44,7 +48,7 @@ export const FocusContainer = ({
       ) {
         containerFocusedState.current = false;
         onChildGotBlurred(containerId.current);
-        console.log(">>>>>>>>>>>>>>>> Container BLURRED", containerId.current);
+        // console.log(">>>>>>>>>>>>>>>> Container BLURRED", containerId.current);
       }
 
       if (
@@ -54,7 +58,7 @@ export const FocusContainer = ({
       ) {
         containerFocusedState.current = true;
         onChildGotFocused(containerId.current);
-        console.log(">>>>>>>>>>>>>>>> Container FOCUSED", containerId.current);
+        // console.log(">>>>>>>>>>>>>>>> Container FOCUSED", containerId.current);
       }
     }
   }, [mapObj.activeState.vs]);

@@ -20,6 +20,10 @@ export const useFocusProvider = () => {
     setFocusState();
   }, []);
 
+  const clearFocusRef = () => {
+    focusRef.current = {};
+  };
+
   const setFocusState = () => {
     lastFocusedItem.current = focusedItem.current; // save last focused item
     focusedItem.current = navMapObj.getFocusedItem(); // set new focusItem
@@ -65,6 +69,7 @@ export const useFocusProvider = () => {
     navigateManual,
     triggerItemPress,
     triggerItemRelease,
+    clearFocusRef,
   };
 
   return focusContext;
