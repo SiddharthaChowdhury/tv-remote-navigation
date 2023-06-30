@@ -64,30 +64,36 @@ Below is a very minimal example of the focus management library
       ];
 
       return (
-        <FocusContainer context={focusContext} behavior="grid">
-          <View style={getStyle().content}>
-            {data.map((rowData, rowIndex) => (
-              <FocusLane
-                context={focusContext}
-                index={rowIndex}
-                key={rowIndex}
-              >
-                <View style={getStyle().lane}>
-                  {rowData.map((itemText, itemIndex) => (
-                    <ItemComponent
-                      context={focusContext}
-                      parentIndex={rowIndex}
-                      index={itemIndex}
-                      key={itemIndex}
-                    >
-                      <Text>{itemText}</Text>
-                    </ItemComponent>
-                  ))}
-                </View>
-              </FocusLane>
-            ))}
-          </View>
-        </FocusContainer>
+        <FocusContainer
+          context={focusContext}
+          behavior="grid"
+          render={(containerContext) => {
+            return (
+              <View style={getStyle().content}>
+                {data.map((rowData, rowIndex) => (
+                  <FocusLane
+                    context={containerContext}
+                    index={rowIndex}
+                    key={rowIndex}
+                  >
+                    <View style={getStyle().lane}>
+                      {rowData.map((itemText, itemIndex) => (
+                        <ItemComponent
+                          context={containerContext}
+                          parentIndex={rowIndex}
+                          index={itemIndex}
+                          key={itemIndex}
+                        >
+                          <Text>{itemText}</Text>
+                        </ItemComponent>
+                      ))}
+                    </View>
+                  </FocusLane>
+                ))}
+              </View>
+            )
+          }}
+        />
       );
     };
 
@@ -115,7 +121,7 @@ Below is a very minimal example of the focus management library
 
 ## **`useFocusProvider()`**
 
-This hook initiates the focus library _(By creating an instance of the core `NavigationMap` class)_. It returns a context obj (not a react Context) which is a **required** props for each of the building blocks described below. Not diving deep into what this context contains but in the nut shell, it holds the map of the interrelationship between focusable items (`<FocusItem/>`), the
+This hook initiates the focus library _(By creating an instance of the core `NavigationMap` class)_. It returns a context obj (not a react Context) which is a **required** props for `<FocusContainer/>`. Not diving deep into what this context contains but in the nut shell, it holds the map of the interrelationship between focusable items (`<FocusItem/>`), the
 lanes `<FocusLane/>` and the containers `<FocusContainer/>`, additionally few a functions which helps in navigating between the Focusable items.
 
 ## **`<FocusContainer>`**
@@ -124,8 +130,9 @@ This wrapper components defines a container/vs(virtual space). This is last-comp
 
 ### Props
 
-- **`children`**: (Required): Ofc not as a props
+- **`render(containerContext)`**: (Required): This prop takes a React.FC as value. This subject React.FC must use the `containerContext` as value for `context` props for the `FocusLane` and `FocusChild`.
 - **`context`** : (Required) this props takes the returned context variable from `useFocusProvider()` hook.
+- **vsId**: (Optional) To be used only when you need to organize containers at different positions. It takes a value of type `number[x,y]` where `x` and `y` denotes position of the container in page (based on coordinate geometry)
 - **`onChildGotFocused`**: (Optional) this callback listener gets called EACH time the container is focused (NOTE: Not called when focus changes between the children of this container)
 - **`onChildGotBlurred`**: (Optional) same behavior as _`onChildGotFocused`_ props but it is called when the container loses focus or Blurred.
 - **`behavior`**: (Optional) can be `'default' | 'grid' | 'spacial-rows'`. Well the default value is `default` behavior. **NOTE: Special case -** if set to `spacial-rows`, in the focusable component `<FocusItem itemWidth={WIDTH_OF_TEASER}` the prop `itemWidth` will need a value, the value is basically the width of the focusable item (including the margins if any to function accurately).
@@ -140,7 +147,7 @@ This Wrapper component should be used to wrap all focusable items _`<FocusItem /
 
 - **`children`**: (Required): Ofc not as a props
 - **`index`** : (Required) Is the unique numerical index of the Lane within the container.
-- **`context`** : (Required) Same as the prop in _`FocusContainer`_ component.
+- **`context`** : (Required) Check `render(containerContext)` prop in _`FocusContainer`_ component, for details.
 - **`onChildGotFocused`**: (Optional) Same as prop in _`FocusContainer`_ component
 - **`onChildGotBlurred`**: (Optional) Same as prop in _`FocusContainer`_ component
 

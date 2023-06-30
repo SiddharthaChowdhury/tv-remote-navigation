@@ -25,6 +25,7 @@ const _FocusItem = ({
     }
 
     if (!focusRef.current.vs) {
+      console.log(">>>>>>>>>> ------- ", focusRef.current);
       const vsArr = mapObj.getNewNextVs();
       focusRef.current.vs = vsArr;
     }

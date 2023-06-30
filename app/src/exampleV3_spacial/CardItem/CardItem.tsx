@@ -11,6 +11,7 @@ const getRandomSize = () => {
 
   const sizes = [100, 300, 50, 20, 200, 150, 250, 170];
   return sizes[randomSize(0, 6)];
+  // return 100;
 };
 
 export interface ICardProps extends IFocusItemProps {

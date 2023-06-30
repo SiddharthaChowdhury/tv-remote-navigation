@@ -1,41 +1,48 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { IFocusContainerProps } from "./types";
 import utilNavigation from "./utilNavigation";
 
 export const FocusContainer = ({
-  children,
+  render,
   context,
   behavior,
+  vsId,
   onChildGotFocused,
   onChildGotBlurred,
-}: React.PropsWithChildren<IFocusContainerProps>) => {
+}: IFocusContainerProps) => {
   const containerFocusedState = useRef<boolean>(false);
   const containerId = useRef<string>("");
-  const { focusRef, mapObj } = context;
+  if (vsId) {
+    context.focusRef.current.vs = vsId;
+  }
 
   // Registering new container in the map
-  useEffect(() => {
-    if (!focusRef.current) return;
-    const { rows, vs } = focusRef.current;
+  // useEffect(() => {
+  //   if (!context.focusRef.current) return;
+  //   const { rows, vs } = context.focusRef.current;
 
-    if (!rows || !vs) return;
-    mapObj.addNewVs(rows, vs, behavior);
-    containerId.current = utilNavigation.generateContainerId(vs);
-  }, []);
+  //   if (!rows || !vs) return;
+  //   context.mapObj.addNewVs(rows, vs, behavior);
+  //   containerId.current = utilNavigation.generateContainerId(vs);
+  //   console.log(">>>>>>>>>> VS 2", vs, vsId, context.focusRef);
+  //   context.focusRef.current = {};
+  //   console.log(">>>>>>>>>>Clearing  VS", context.focusRef);
+  //   // clear focusRef for next use
+  // }, [context.focusRef.current.rows]);
 
   // When switching from default layout to grid layout movement (or vice-versa)
   useEffect(() => {
-    if (behavior !== undefined && mapObj) {
-      if (!focusRef.current?.vs) return;
-      const { vs } = focusRef.current;
+    if (behavior !== undefined && context.mapObj) {
+      if (!context.focusRef.current?.vs) return;
+      const { vs } = context.focusRef.current;
 
-      mapObj.changeVsNavBehavior(vs, behavior);
+      context.mapObj.changeVsNavBehavior(vs, behavior);
     }
   }, [behavior]);
 
   // Detect container focus and blur
   useEffect(() => {
-    const focusedVsId = mapObj.getFocusedVsId();
+    const focusedVsId = context.mapObj.getFocusedVsId();
     if (focusedVsId) {
       if (
         containerFocusedState.current === true &&
@@ -57,7 +64,9 @@ export const FocusContainer = ({
         console.log(">>>>>>>>>>>>>>>> Container FOCUSED", containerId.current);
       }
     }
-  }, [mapObj.activeState.vs]);
+  }, [context.mapObj.activeState.vs]);
 
-  return <>{children}</>;
+  // console.log(">>>>>>>>> CONTAINER RERENDER", context.focusRef);
+  // return <>{children}</>;
+  return render(context);
 };

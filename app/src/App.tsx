@@ -20,7 +20,7 @@ export const App = () => {
       {/* <HomePage grid showModal={showModal} /> */}
       {/* <HomePageV2 behavior="grid" />
       {showModal && <Modal />} */}
-      <SpacialHomeExV3 behavior={"default"} />
+      <SpacialHomeExV3 behavior={"spacial-rows"} />
     </View>
   );
 };

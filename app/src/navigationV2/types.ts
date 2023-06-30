@@ -1,3 +1,4 @@
+import { ReactElement } from "react";
 import NavigationMapV2 from "./NavSpacialMap";
 
 export interface INavMapClick {
@@ -67,12 +68,16 @@ export interface IFocusItemProps extends IFocusCommonWrapperProps {
 
 export interface IFocusContainerProps extends IFocusCommonWrapperProps {
   behavior?: TVsBehavior;
+  vsId?: number[];
+  render: (context: IFocusProviderContext) => ReactElement;
   onChildGotFocused?: (containerId: string) => void;
   onChildGotBlurred?: (containerId: string) => void;
 }
 
-export interface IFocusLaneProps extends IFocusContainerProps {
+export interface IFocusLaneProps extends IFocusCommonWrapperProps {
   index: number;
+  onChildGotFocused?: (containerId: string) => void;
+  onChildGotBlurred?: (containerId: string) => void;
 }
 
 export interface IFocusProviderContext extends Record<string, any> {
