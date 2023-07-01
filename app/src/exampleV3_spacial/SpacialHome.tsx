@@ -4,7 +4,7 @@ import { ENavigationDirection, TVsBehavior } from "../navigationV2/types";
 import { useFocusProvider } from "../navigationV2/useFocusProvider";
 import { View, useTVEventHandler } from "../react-native.components";
 import { FocusContainer } from "../navigationV2/FocusContainer";
-import { Content } from "./Content/Content";
+import { Content, TEST_FOCUS_KEY } from "./Content/Content";
 import { SideNav } from "./SideNav/SideNav";
 
 const PAGE_ID = "SPACIAL_PAGE";
@@ -33,23 +33,17 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         focusListener.navigate(ENavigationDirection.DOWN, PAGE_ID);
         break;
       case "SELECT":
-        focusListener.onSelectUp(PAGE_ID);
+        focusListener.onSelectDown(PAGE_ID);
         break;
     }
-
-    console.log(
-      ">>>>>>>>>> MAP Obj ",
-      JSON.stringify(focusContext.mapObj.activeState)
-    );
   });
 
   useEffect(() => {
     focusListener.register(PAGE_ID, focusContext);
-    // console.log(">>>>>>>>>> MAP Obj", focusContext.mapObj.map);
-    // setTimeout(() => {
-    //   focusListener.setFocus(TEST_FOCUS_KEY);
-    //   // setFocusState(focusContext.mapObj.getFocusedItem());
-    // }, 3000);
+    setTimeout(() => {
+      focusListener.setFocus(TEST_FOCUS_KEY);
+      // setFocusState(focusContext.mapObj.getFocusedItem());
+    }, 3000);
 
     return () => {
       focusListener.deregister(PAGE_ID);
@@ -64,12 +58,6 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
           behavior={behavior}
           vsId={[-1, 0]}
           name="menu-container"
-          // onChildGotFocused={(containerId) =>
-          //   console.log(">>>>>> Container Focused ", containerId)
-          // }
-          // onChildGotBlurred={(containerId) =>
-          //   console.log(">>>>>> Container Blurred ", containerId)
-          // }
         >
           <SideNav focusContext={focusContext} />
         </FocusContainer>
@@ -79,15 +67,8 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
           context={focusContext}
           behavior={behavior}
           name="content-container"
-          // onChildGotFocused={(containerId) =>
-          //   console.log(">>>>>> Container Focused ", containerId)
-          // }
-          // onChildGotBlurred={(containerId) =>
-          //   console.log(">>>>>> Container Blurred ", containerId)
-          // }
         >
           <Content focusContext={focusContext} />
-          {/* <SideNav focusContext={focusContext} /> */}
         </FocusContainer>
       </View>
     </View>

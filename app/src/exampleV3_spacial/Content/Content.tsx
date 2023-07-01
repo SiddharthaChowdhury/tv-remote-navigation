@@ -17,17 +17,7 @@ export const Content = ({ focusContext }: Props) => {
     <View style={getStyle().content}>
       {layoutRows.map((rowContent, rowIndex) => {
         return (
-          <FocusLane
-            key={rowIndex}
-            index={rowIndex}
-            context={focusContext}
-            //   onChildGotFocused={(laneId) =>
-            //     // console.log(">>>>>> Lane Focused ", laneId)
-            //   }
-            //   onChildGotBlurred={(laneId) =>
-            //     console.log(">>>>>> Lane Blurred ", laneId)
-            //   }
-          >
+          <FocusLane key={rowIndex} index={rowIndex} context={focusContext}>
             <View style={getStyle().row}>
               {rowContent.map((content, itemIndex) => {
                 return (

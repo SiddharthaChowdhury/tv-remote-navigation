@@ -50,15 +50,15 @@ const _FocusLane = ({
 
       if (
         laneFocusedState.current === false &&
-        focusedLaneId === laneId.current
-        // onChildGotFocused
+        focusedLaneId === laneId.current &&
+        onChildGotFocused
       ) {
         laneFocusedState.current = true;
-        // onChildGotFocused(laneId.current);
+        onChildGotFocused(laneId.current);
       }
     }
   }, [mapObj.activeState.vs, mapObj.activeState.row]);
-  console.log(">>>>>______________lane___", laneId.current);
+
   return <>{children}</>;
 };
 

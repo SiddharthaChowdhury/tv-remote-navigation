@@ -28,13 +28,7 @@ export const CardItem = ({
   const { current: size } = useRef<number>(getRandomSize());
   const [isFocused, setFocus] = useState(false);
 
-  useEffect(() => {
-    // if (focusId.current)
-    // console.log(
-    //   ">>>>>>>> Item focus status update ",
-    //   JSON.stringify({ isFocused, focusId: focusId.current })
-    // );
-  }, [isFocused]);
+  useEffect(() => {}, [isFocused]);
 
   return (
     <FocusItem

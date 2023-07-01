@@ -100,7 +100,6 @@ const _FocusItem = ({
     context.mapObj.clickedItem.repeatCount,
   ]);
 
-  console.log(">>>>>______________item___", currentId.current, vsId);
   return <>{children}</>;
 };
 

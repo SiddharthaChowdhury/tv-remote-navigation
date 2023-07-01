@@ -12,7 +12,6 @@ Below is a very minimal example of the focus management library
           parentIndex={props.parentIndex}
           index={props.index}
           onFocus={id => {
-            console.log('>>>>>>> Focused Item', id);
             setFocus(true);
           }}
           onBlur={() => setFocus(false)}>

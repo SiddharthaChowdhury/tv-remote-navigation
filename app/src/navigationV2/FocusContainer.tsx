@@ -22,8 +22,6 @@ const _FocusContainer = ({
     if (!focusRef.current) return;
     const { rows, vs } = focusRef.current;
 
-    // console.log(">>>>>>>>>>>>> ", vsId, vs, mapObj.map);
-
     if (!rows || !vs) return;
     mapObj.addNewVs(rows, vs, behavior);
     containerId.current = utilNavigation.generateContainerId(vs);
