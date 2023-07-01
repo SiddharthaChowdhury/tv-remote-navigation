@@ -311,26 +311,35 @@ class NavigationMapV2 {
     direction: "Left" | "Right" | "Up" | "Down" = "Down"
   ): number[] => {
     let nextVss = [0, 0];
+
     if (!direction || !this.map?.vss) return nextVss;
 
     const existingVs = Object.keys(this.map.vss) || [];
+
     existingVs.forEach((vsId) => {
       const [x = 0, y = 0] = utilNavigation.vsStrToNumberArr(vsId);
 
-      if (direction === "Left" && x < nextVss[0]!) {
-        nextVss[0] = x - 1;
-      }
-      if (direction === "Right" && x > nextVss[0]!) {
-        nextVss[0] = x + 1;
-      }
-      if (direction === "Up" && x < nextVss[1]!) {
-        nextVss[1] = x - 1;
-      }
-      if (direction === "Down" && x > nextVss[1]!) {
-        nextVss[1] = x + 1;
+      // if (direction === "Left" && x < nextVss[0]!) {
+      //   nextVss[0] = x - 1;
+      // }
+      // if (direction === "Right" && x > nextVss[0]!) {
+      //   nextVss[0] = x + 1;
+      // }
+      // if (direction === "Up" && x < nextVss[1]!) {
+      //   nextVss[1] = x - 1;
+      // }
+
+      // if (direction === "Down" && (y > nextVss[1]!)) {
+      //   nextVss[1] = y + 1;
+      // }
+
+      if (direction === "Down") {
+        if (y < nextVss[1]) nextVss[1] = y - 1;
+        if (y === 0) nextVss[1] = -1;
       }
     });
 
+    // console.log(">>>>>>>> ### y", nextVss);
     return nextVss;
   };
 

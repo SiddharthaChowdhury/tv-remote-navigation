@@ -1,7 +1,12 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useContext, useRef } from "react";
 import { useEffect, useState } from "react";
 import { IFocusItemProps } from "./types";
 import utilNavigation from "./utilNavigation";
+import { FocusScopeCtx } from "./FocusContainer";
+
+interface IFocusItemPropsWithCtx extends IFocusItemProps {
+  vsId: number[] | null;
+}
 
 const _FocusItem = ({
   children,
@@ -13,7 +18,8 @@ const _FocusItem = ({
   onFocus,
   onBlur,
   onKeyPress,
-}: React.PropsWithChildren<IFocusItemProps>) => {
+  vsId,
+}: React.PropsWithChildren<IFocusItemPropsWithCtx>) => {
   const { focusRef, mapObj } = context;
   const currentId = useRef<string>("");
   const isFocused = useRef<boolean>(false);
@@ -25,8 +31,9 @@ const _FocusItem = ({
     }
 
     if (!focusRef.current.vs) {
-      const vsArr = mapObj.getNewNextVs();
+      const vsArr = vsId!;
       focusRef.current.vs = vsArr;
+      // console.log(">>>>>>>>>>>> CTX #+++++", vsId, focusRef.current.vs);
     }
 
     const currentVsId = focusRef.current.vs;
@@ -62,7 +69,7 @@ const _FocusItem = ({
     }
 
     currentId.current = itemId;
-  }, [index, parentIndex]);
+  }, []);
 
   // This triggers onFocus and onBlur
   useEffect(() => {
@@ -93,24 +100,21 @@ const _FocusItem = ({
     context.mapObj.clickedItem.repeatCount,
   ]);
 
+  console.log(">>>>>______________item___", currentId.current, vsId);
   return <>{children}</>;
 };
 
-export const FocusItem = memo(_FocusItem, (_, newProps) => {
+const MFocusItem = memo(_FocusItem, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
   const clickedItemInfo = newProps.context.mapObj.clickedItem;
 
-  if (
-    !newProps.context.focusRef.current.vs ||
-    !activeFocusedItemId ||
-    newProps.index === undefined
-  ) {
+  if (!newProps.vsId || !activeFocusedItemId || newProps.index === undefined) {
     return false; // ReRender
   }
 
   const thisItemId = utilNavigation.generateItemId(
-    newProps.context.focusRef.current.vs,
+    newProps.vsId,
     newProps.parentIndex,
     newProps.index
   );
@@ -125,3 +129,9 @@ export const FocusItem = memo(_FocusItem, (_, newProps) => {
 
   return true;
 });
+
+export const FocusItem = (props: React.PropsWithChildren<IFocusItemProps>) => {
+  const VSS_ID = useContext(FocusScopeCtx);
+
+  return <MFocusItem {...props} vsId={VSS_ID} />;
+};

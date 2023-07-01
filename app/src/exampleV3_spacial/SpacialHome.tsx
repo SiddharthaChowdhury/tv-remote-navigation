@@ -37,7 +37,10 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         break;
     }
 
-    console.log(">>>>>>>>>> MAP Obj", focusContext.mapObj.map);
+    console.log(
+      ">>>>>>>>>> MAP Obj ",
+      JSON.stringify(focusContext.mapObj.activeState)
+    );
   });
 
   useEffect(() => {
@@ -59,6 +62,8 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         <FocusContainer
           context={focusContext}
           behavior={behavior}
+          vsId={[-1, 0]}
+          name="menu-container"
           // onChildGotFocused={(containerId) =>
           //   console.log(">>>>>> Container Focused ", containerId)
           // }
@@ -66,7 +71,6 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
           //   console.log(">>>>>> Container Blurred ", containerId)
           // }
         >
-          {/* <Content focusContext={focusContext} /> */}
           <SideNav focusContext={focusContext} />
         </FocusContainer>
       </View>
@@ -74,6 +78,7 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
         <FocusContainer
           context={focusContext}
           behavior={behavior}
+          name="content-container"
           // onChildGotFocused={(containerId) =>
           //   console.log(">>>>>> Container Focused ", containerId)
           // }
@@ -89,7 +94,7 @@ export const SpacialHomeExV3 = ({ behavior }: ISpacialHomeProps) => {
   );
 };
 
-const getStyle = (isItemFocused?: boolean) => {
+const getStyle = () => {
   return {
     content: {
       maxWidth: 1280,

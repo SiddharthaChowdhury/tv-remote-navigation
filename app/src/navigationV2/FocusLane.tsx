@@ -1,7 +1,12 @@
-import { useRef, useEffect, memo } from "react";
+import { useRef, useEffect, memo, useContext } from "react";
 import { IFocusLaneProps } from "./types";
 import utilNavigation from "./utilNavigation";
 import React from "react";
+import { FocusScopeCtx } from "./FocusContainer";
+
+interface IFocusLanePropsWithCtx extends IFocusLaneProps {
+  vsId: number[] | null;
+}
 
 const _FocusLane = ({
   children,
@@ -9,7 +14,7 @@ const _FocusLane = ({
   index,
   onChildGotBlurred,
   onChildGotFocused,
-}: React.PropsWithChildren<IFocusLaneProps>) => {
+}: React.PropsWithChildren<IFocusLanePropsWithCtx>) => {
   const laneFocusedState = useRef<boolean>(false);
   const laneId = useRef<string>("");
   const { focusRef, mapObj } = context;
@@ -45,30 +50,30 @@ const _FocusLane = ({
 
       if (
         laneFocusedState.current === false &&
-        focusedLaneId === laneId.current &&
-        onChildGotFocused
+        focusedLaneId === laneId.current
+        // onChildGotFocused
       ) {
         laneFocusedState.current = true;
-        onChildGotFocused(laneId.current);
+        // onChildGotFocused(laneId.current);
       }
     }
   }, [mapObj.activeState.vs, mapObj.activeState.row]);
-
+  console.log(">>>>>______________lane___", laneId.current);
   return <>{children}</>;
 };
 
-export const FocusLane = memo(_FocusLane, (_, newProps) => {
+const MFocusLane = memo(_FocusLane, (_, newProps) => {
   const lastFocusedItemId = newProps.context.lastFocusedItemId;
   const activeFocusedItemId = newProps.context.activeFocusedItemId;
   const clickedItemInfo = newProps.context.mapObj.clickedItem;
 
-  if (!newProps.context.focusRef.current.vs || !activeFocusedItemId)
-    return false;
+  if (!newProps.vsId || !activeFocusedItemId) return false;
 
   const thisLaneId = utilNavigation.generateLaneId(
-    newProps.context.focusRef.current.vs,
+    newProps.vsId,
     newProps.index
   );
+
   const activeLaneId = utilNavigation.itemIdToLaneId(activeFocusedItemId);
 
   /*  
@@ -100,3 +105,9 @@ export const FocusLane = memo(_FocusLane, (_, newProps) => {
 
   return lastFocusedLaneId !== thisLaneId;
 });
+
+export const FocusLane = (props: React.PropsWithChildren<IFocusLaneProps>) => {
+  const VSS_ID = useContext(FocusScopeCtx);
+
+  return <MFocusLane {...props} vsId={VSS_ID} />;
+};

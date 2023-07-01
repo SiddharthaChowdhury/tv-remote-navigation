@@ -1,14 +1,16 @@
 import { INavMapMeta } from "./types";
 
+const BLOCK_SEPARATOR = "|";
+const VS_SEPARATOR = "_";
 const utilNavigation = {
   vsStrToNumberArr: (vsIdString: string) => {
-    const [x, y] = vsIdString.split("_");
+    const [x, y] = vsIdString.split(VS_SEPARATOR);
     return [parseInt(x), parseInt(y)];
   },
 
   vsNumberArrToStr: (vsNumberArr: number[]) => {
     const [x, y] = vsNumberArr;
-    return `${x}_${y}`;
+    return `${x}${VS_SEPARATOR}${y}`;
   },
 
   generateContainerId: (vs: number[]) => {
@@ -16,11 +18,11 @@ const utilNavigation = {
   },
 
   generateLaneId: (vs: number[], row: number) => {
-    return `${utilNavigation.vsNumberArrToStr(vs)}-${row}`;
+    return `${utilNavigation.vsNumberArrToStr(vs)}${BLOCK_SEPARATOR}${row}`;
   },
 
   generateItemId: (vs: number[], row: number, item: number) => {
-    return `${utilNavigation.generateLaneId(vs, row)}-${item}`;
+    return `${utilNavigation.generateLaneId(vs, row)}${BLOCK_SEPARATOR}${item}`;
   },
 
   getElementIdFromNavMapMeta: (navMapMeta: INavMapMeta) => {
@@ -33,8 +35,13 @@ const utilNavigation = {
     return utilNavigation.generateLaneId(vs, row);
   },
 
+  itemIdToContainerId: (itemIdStr: string): string => {
+    const { vs } = utilNavigation.itemIdToMapMeta(itemIdStr);
+    return utilNavigation.generateContainerId(vs);
+  },
+
   itemIdToMapMeta: (itemIdStr: string): INavMapMeta => {
-    const [vsIdStr, rowId, itemId] = itemIdStr.split("-");
+    const [vsIdStr, rowId, itemId] = itemIdStr.split(BLOCK_SEPARATOR);
     const vsId = utilNavigation.vsStrToNumberArr(vsIdStr);
 
     return {

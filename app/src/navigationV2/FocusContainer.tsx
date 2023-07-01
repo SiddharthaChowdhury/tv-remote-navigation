@@ -1,10 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { createContext, memo, useEffect, useRef } from "react";
 import { IFocusContainerProps } from "./types";
 import utilNavigation from "./utilNavigation";
 
-export const FocusContainer = ({
+export const FocusScopeCtx = createContext<number[] | null>([]);
+
+const _FocusContainer = ({
   children,
   context,
+  vsId,
+  name,
   behavior,
   onChildGotFocused,
   onChildGotBlurred,
@@ -18,13 +22,13 @@ export const FocusContainer = ({
     if (!focusRef.current) return;
     const { rows, vs } = focusRef.current;
 
-    console.log(">>>>>>>>>>>>> ", vs, containerId.current);
+    // console.log(">>>>>>>>>>>>> ", vsId, vs, mapObj.map);
 
     if (!rows || !vs) return;
     mapObj.addNewVs(rows, vs, behavior);
     containerId.current = utilNavigation.generateContainerId(vs);
-    context.clearFocusRef();
-    // context.focusRef.current = {};
+    // context.clearFocusRef();
+    context.focusRef.current = {};
   }, []);
 
   // When switching from default layout to grid layout movement (or vice-versa)
@@ -63,5 +67,31 @@ export const FocusContainer = ({
     }
   }, [mapObj.activeState.vs]);
 
-  return <>{children}</>;
+  return (
+    <FocusScopeCtx.Provider value={vsId!}>{children}</FocusScopeCtx.Provider>
+  );
+};
+
+const MFocusContainer = memo(_FocusContainer, (_, newProps) => {
+  const activeVs = utilNavigation.generateContainerId(
+    newProps.context.mapObj.activeState.vs
+  );
+  const currentVs = utilNavigation.generateContainerId(newProps.vsId!);
+  const lastFocusedItemId = newProps.context.lastFocusedItemId;
+  const lastFocusedVs =
+    lastFocusedItemId && utilNavigation.itemIdToContainerId(lastFocusedItemId);
+
+  if (activeVs === currentVs || lastFocusedVs !== activeVs) return false;
+
+  return true;
+});
+
+export const FocusContainer = (
+  props: React.PropsWithChildren<IFocusContainerProps>
+) => {
+  const { current: containerVs } = useRef(
+    props.vsId || props.context.mapObj.getNewNextVs()
+  );
+
+  return <MFocusContainer {...props} vsId={containerVs} />;
 };
