@@ -92,13 +92,10 @@ const _FocusItem = ({
 
   // This triggers onKeyPress
   useEffect(() => {
-    if (context.mapObj.clickedItem.itemId === currentId.current && onKeyPress) {
+    if (mapObj.clickedItem.itemId === currentId.current && onKeyPress) {
       onKeyPress(currentId.current);
     }
-  }, [
-    context.mapObj.clickedItem.itemId,
-    context.mapObj.clickedItem.repeatCount,
-  ]);
+  }, [mapObj.clickedItem.itemId, mapObj.clickedItem.repeatCount]);
 
   return <>{children}</>;
 };
